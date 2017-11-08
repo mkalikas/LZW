@@ -16,20 +16,20 @@ struct lzw {
 
 };
 
-// Builds a dictionary of extended ASCII characters 
-// These fill up the keys from 0 to 255 
+// Builds a dictionary of extended ASCII characters
+// These fill up the keys from 0 to 255
 void build_dictionary() {
 
   std::map<std::string, int> dictionary;
   // Build the dictionary.
-  int dictionary_size = 256;
-  for (auto x = 0; x < dictionary_size; ++x) 
+  int dictionary_size = 257;
+  for (auto x = 0; x < dictionary_size; ++x)
     dictionary[std::string(1, x)] = x;
 
-  std::ofstream out("test.txt", std::ios::binary);
+  std::ofstream out("test.txt", std::ios::binary); // used to write to file test.txt which includes only the pairs in the original dictionary
   for (auto x : dictionary) {
-    
-  out << x.first << " " << x.second << " ";
+
+  out << x.first << " " << x.second <<"\n";
   }
   out.close();
 
@@ -70,7 +70,7 @@ Iter compress(const std::string &uncompressed, Iter result) {
 
 // Decompress a list of output ks to a string.
 // "begin" and "end" must form a valid range of ints
-template <typename Iter> 
+template <typename Iter>
 std::string decompress(Iter begin, Iter end) {
   // Build the dictionary.
   int dictionary_size = 256;
@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
       // Compress input file
       case 'c': {
 
-     } 
+     }
       //compress(v, v.end());
       //copy(v.begin(), v.end(), std::ostream_iterator<int>(std::cout, ", "));
         //binaryIODemo(v);
