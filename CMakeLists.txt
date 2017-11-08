@@ -9,4 +9,4 @@ MESSAGE("Compiler is ${CMAKE_CXX_COMPILER}")
 #endif()
 
 project(lzw CXX)
-add_executable(lzw435 lzw_main.cpp lzw_original.cpp)
+add_executable(lzw lzw_main.cpp)

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <iterator>
 
-std::map<std::string, int> &lzw::build_dictionary() {
+std::map<std::string, int> &build_dictionary() {
   // Build the dictionary.
   int dictionary_size = 256;
   for (int x = 0; x < dictionary_size; ++x) dictionary[std::string(1, x)] = x;
@@ -16,7 +16,7 @@ std::map<std::string, int> &lzw::build_dictionary() {
 
   return dictionary;
 }
-std::string lzw::int_to_binary(int c, int cl) {
+std::string int_to_binary(int c, int cl) {
   std::string p;  // a binary code string with code length = cl
   while (c > 0) {
     p = (c % 2 == 0) ? "0" + p : "1" + p;
@@ -35,7 +35,7 @@ std::string lzw::int_to_binary(int c, int cl) {
   return p;
 }
 
-int lzw::binary_to_int(std::string p) {
+int binary_to_int(std::string p) {
   /*if(p.size() < 0)
     return 0;
 
@@ -66,7 +66,7 @@ int lzw::binary_to_int(std::string p) {
   return code;
 }
 
-void lzw::binaryIODemo(std::vector<int> compressed) {
+void binaryIODemo(std::vector<int> compressed) {
   std::string bcode;
   for (std::vector<int>::iterator it = compressed.begin();
        it != compressed.end(); ++it) {

@@ -5,13 +5,11 @@
 #include <string>
 #include <vector>
 
-struct lzw {
   std::map<std::string, int> dictionary;
   std::map<std::string, int> &build_dictionary();
   std::string int_to_binary(int c, int cl);
   int binary_to_int(std::string p);
   void binaryIODemo(std::vector<char> compressed);
-};
 
 // Compress a string to a list of output symbols.
 // The result will be written to the output iterator
