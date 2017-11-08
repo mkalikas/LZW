@@ -8,6 +8,7 @@
 int main(int argc, char const *argv[]) {
   try {
 
+    // this is a test 
     std::vector<char> v;
 
     // Run program passing c and filename to compress
