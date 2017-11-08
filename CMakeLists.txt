@@ -1,12 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 set(CMAKE_CXX_FLAGS "-std=c++1z")
 #set(CMAKE_CXX_COMPILER /usr/bin/g++-6)
-#set(CMAKE_CXX_COMPILER /usr/local/Cellar/gcc@6/6.4.0/bin/g++-6)
-set(MAKE_CXX_COMPILER g++-6)
+set(CMAKE_CXX_COMPILER /usr/local/Cellar/gcc@6/6.4.0/bin/g++-6)
 set(CMAKE_CXX_STANDARD_REQUIRED c++17)
 MESSAGE("Compiler is ${CMAKE_CXX_COMPILER}")
-#if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0) message(FATAL_ERROR "Host Clang version must be at least 5!")
-#endif()
 
 project(lzw CXX)
 add_executable(lzw lzw_main.cpp)
