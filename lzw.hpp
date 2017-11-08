@@ -5,7 +5,15 @@
 #include <string>
 #include <vector>
 
-  std::map<std::string, int> dictionary;
+  struct lzw {
+    lzw(std::map<std::string, int> d) : d(d) {}
+
+    std::map<std::string, int> d;
+
+
+
+  };
+
   std::map<std::string, int> &build_dictionary();
   std::string int_to_binary(int c, int cl);
   int binary_to_int(std::string p);
