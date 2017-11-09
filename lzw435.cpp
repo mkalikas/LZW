@@ -19,28 +19,12 @@ std::map<std::string, int> compression_dictionary() {
   for (auto x = 0; x < dictionary_size; ++x)
     c_dictionary[std::string(1, x)] = x;
 
-  /*
-  //\ DELETE THIS COMMENTED OUT SECTION
-  std::ofstream out("test.txt"); // used to write to file test.txt which
-  includes only the pairs in the original dictionary
-
-  //Loop to write each pair in dictionary to a file, each on its own line
-
-  for (auto x : dictionary) {
-
-    out << "( " << x.first << " , " << x.second << " ) "
-        << "\n";
-  }
-  out.close();
-  */
-
   return c_dictionary;
 }
 
 
 // Take a string and create a vector of integers to represent 
 // tokens in the string 
-
 std::vector<int> compress(const std::string &uncompressed) {
 
   std::map<std::string, int> dictionary = compression_dictionary(); // initialize dictionary
@@ -54,17 +38,13 @@ std::vector<int> compress(const std::string &uncompressed) {
     if (dictionary.find(wc) != dictionary.end())
       w = wc;
     else {
-      v.push_back(dictionary[w]);
-      //*result++ = dictionary[w];
+      v.push_back(1 + dictionary[w]);
       // Add wc to the dictionary. Assuming the size is 4096!!!
       if (dictionary.size() < 4096)
         dictionary[wc] = dictionary.size() + 1;
       w = std::string(1, c);
     }
   }
-
-    // If the value found is in the range of the string, lookahead to the next char 
-    // in the string and create a string of these characters to add to the dictionary 
 
   // Output the code for w.
   if (!w.empty())
@@ -84,109 +64,57 @@ std::map<int, std::string> decompression_dictionary() {
   for (auto x = 0; x < dictionary_size; ++x)
     d_dictionary[x] = std::string(1, x);
 
-  /*
-  //\ DELETE THIS COMMENTED OUT SECTION
-  std::ofstream out("test.txt"); // used to write to file test.txt which
-  //includes only the pairs in the original dictionary
-
-  //Loop to write each pair in dictionary to a file, each on its own line
-
-  for (auto x : d_dictionary) {
-
-    out << "( " << x.first << " , " << x.second << " ) "
-        << "\n";
-  }
-  out.close();
-  */
-
   return d_dictionary;
 }
 
-
-
-/*
 // Decompress a list of output ks to a string.
-// "begin" and "end" must form a valid range of ints
-template <typename Iter> 
-std::string decompress(Iter begin, Iter end) {
+// "begin" and "end" must form a valid range of ints 
+std::string decompress(std::string &compressed) {
 
+  std::map<int, std::string> dictionary = decompression_dictionary();
 
-  std::string w(1, *begin++);
+   // initialize a string to read the first 12 characters in the compressed string
+  std::string w(compressed.begin(), compressed.begin()+12);
+
   std::string result = w;
-  // std::cout << result<<"???:::\n";
   std::string entry;
-  for (; begin != end; begin++) {
-    int k = *begin;
+  for (auto it = compressed.begin(); it != compressed.end(); ++it ) {
+    int k = *it;
     if (dictionary.count(k))
       entry = dictionary[k];
-    else if (k == dictionary_size)
-      entry = w + w[0];
+    else if (k == dictionary.size())
+      entry = w.substr(w.front(), 1);
     else
       throw "Bad compressed k";
 
-    result += entry;
+    result.append(entry);
 
     if (dictionary.size() < 4096)
-      dictionary[++dictionary_size] = w + entry[0];
+      dictionary[dictionary.size() + 1] = w + entry.front();
 
     w = entry;
   }
   return result;
 }
-*/
 
+std::string int_to_binary_string(std::vector<int> &v, std::string s) {
 
-std::string int_to_binary_string(std::vector<int> v, std::string s) {
+  while(!v.empty()) {
+  std::bitset<12> b(v.front());
+  s.append(b.to_string());
+  v.erase(v.begin());
+  //int_to_binary_string(v, s);
 
-  /*
-  std::string p; // a binary code string with code length = cl
-  while (c > 0) {
-    p = (c % 2 == 0) ? "0" + p : "1" + p;
-    c = c >> 1;
   }
-  int zeros = cl - p.size();
-  if (zeros < 0) {
-    std::cout << "\nWarning: Overflow. code " << c
-              << " is too big to be coded by " << cl << " bits!\n";
-    p = p.substr(p.size() - cl);
-  } else {
-    for (int i = 0; i < zeros;
-         ++i) // pad 0s to left of the binary code if needed
-      p = "0" + p;
-  }
-  return p;
-  */
-  // Base case - return binary string of values in vector
+  
+  // Return binary string of values in vector
   if(v.empty())
     return s;
-
-
-  std::bitset<12> b(v.front());
-  std::string s.append(b.to_string());
-  v.pop()
-  int_to_binary_string(v, s);
 
 }
 
 
-/*
 int binary_string_to_int(std::string p) {
-  if(p.size() < 0)
-    return 0;
-
-  p = p.at(0) == '1' ? ++code :
-      ++code;
-      break;
-
-    p = p.substr(1);
-    while (p.size() > 0) {
-       code = code << 1;
-      if (p.at(0) == '1')
-        ++code;
-      p = p.substr(1);
-    }
-
-   return code;
 
   int code = 0;
   if (p.size() > 0) {
@@ -202,70 +130,6 @@ int binary_string_to_int(std::string p) {
   }
   return code;
 }
-*/
-/*
-
-void binaryIODemo(std::vector<int> compressed) {
-  std::string bcode;
-  for (std::vector<int>::iterator it = compressed.begin();
-       it != compressed.end(); ++it) {
-    int bits = *it < 256 ? 8 : 9;
-    // bits = 12;
-    std::string p = int_to_binary_string(*it, bits);
-    std::cout << "c=" << *it << " : binary string=" << p
-              << "; back to code=" << binary_string_to_int(p) << "\n";
-    bcode += p;
-  }
-
-  // Writing to file
-  std::cout << "string 2 save : " << bcode << "\n";
-  std::string fileName = "example435.lzw";
-  std::ofstream outfile(fileName.c_str(), std::ios::binary);
-
-  std::string zeros = "00000000";
-  if (bcode.size() %
-      8) // Make sure the length of the binary string is a multiple of 8
-    bcode += zeros.substr(0, 8 - bcode.size() % 8);
-
-  for (int i = 0; i < bcode.size(); i += 8) {
-    int b = 1;
-    for (int j = 0; j < 8; j++) {
-      b = b << 1;
-      if (bcode.at(i + j) == '1')
-        b += 1;
-    }
-    char c = (char)(b & 255); // Save the string byte by byte
-    outfile.write(&c, 1);
-  }
-  outfile.close();
-
-
-  struct stat filestatus;
-  stat(fileName.c_str(), &filestatus);
-  auto fsize = filestatus.st_size; // Get the size of the file in bytes
-
-  char c2[fsize];
-  infile.read(c2, fsize);
-
-  std::string s;
-  for (auto i = 0; i < fsize; ++i) {
-    signed char uc = (unsigned char)c2[i];
-
-    std::string p; // a binary string
-    for (int j = 0; j < 8; ++j) {
-      assert(uc != 0);
-      p = (uc % 2 == 0) ? ("0" + p) : ("1" + p);
-      uc = uc >> 1;
-    }
-    p = zeros.substr(0, 8 - p.size()) + p; // Pad 0s to left if needed
-    s += p;
-    ++i;
-  }
-  infile.close();
-  std::cout << " saved string : " << s << "\n";
-}
-*/
-
 
 int main(int argc, char *argv[]) {
   try {
@@ -290,8 +154,6 @@ int main(int argc, char *argv[]) {
 
     infile.close();
 
-    //\DELETE std::cout << in << "\n"; // output string of file contents
-
     switch (*argv[1]) {
       // Compress input file
       // If program was run passing c and filename to compress
@@ -300,12 +162,15 @@ int main(int argc, char *argv[]) {
         // and pass empty vector t
         std::vector<int> v = compress(in);
 
-        std::sting output = int_to_binary_string(v);
+        std::string output = int_to_binary_string(v, " ");
 
         // Add .lzw extension to input file name
         filename.append(".lzw");
 
-        std::cout << output;
+        std::ofstream out(filename.c_str(), std::ios::binary);
+        out << output;
+
+        out.close();
 
       }
       // binaryIODemo(v);
@@ -314,8 +179,10 @@ int main(int argc, char *argv[]) {
         // Save expanded file as filename2
         // filename2 should be identical to filename
         std::map<int, std::string> dictionary = decompression_dictionary();
-        // std::string dev = decompress(v.begin(), v.end());
-        // std::cout << "\n" << dev << "\n";
+        std::string d = decompress(in);
+        std::ofstream out(filename.append("2").c_str(), std::ios::binary);
+        out << d;
+        out .close();
       }
     }
   } 
