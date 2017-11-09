@@ -27,4 +27,4 @@ Also, note that these generated files will be inside of the build directory and 
 
 If you want to keep the files to be passed when executing the program in the same directory as the source files, that is, outside of the build directory, then you must include ../ before the filename. So a file named text.txt that is in the same directory as the source code can be passed to the program by running ./lzw435 c ../text.txt to compress.
 
-If this is the case, the file passed when executing the program by passing e will not include a ../ before the filename and will instead be executed as described above for running the program by passing e and filename.lzw. 
+If this is the case, the file passed when executing the program by passing e will not include a ../ before the filename and will instead be executed as described above for running the program by passing e and filename.lzw.
