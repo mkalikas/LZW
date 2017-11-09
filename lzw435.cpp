@@ -22,14 +22,14 @@ void build_dictionary() {
 
   std::map<std::string, int> dictionary;
   // Build the dictionary.
-  int dictionary_size = 257;
+  int dictionary_size = 256;
   for (auto x = 0; x < dictionary_size; ++x)
     dictionary[std::string(1, x)] = x;
 
   std::ofstream out("test.txt", std::ios::binary); // used to write to file test.txt which includes only the pairs in the original dictionary
   for (auto x : dictionary) {
 
-  out << x.first << " " << x.second <<"\n";
+  out << "( " << x.first << " , " << x.second << " ) " << "\n";
   }
   out.close();
 
