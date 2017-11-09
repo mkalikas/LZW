@@ -4,6 +4,7 @@
 #include <iterator>
 #include <map>
 #include <string>
+#include <bitset>
 #include <sys/stat.h>
 #include <vector>
 
@@ -35,14 +36,36 @@ std::map<std::string, int> compression_dictionary() {
 
   return c_dictionary;
 }
-/*
-// Compress a string to a list of output symbols.
-// The result will be written to the output iterator
-// starting at "result"; the final iterator is returned.
-template <typename Iter>
-Iter compress(const std::string &uncompressed, Iter result) {
 
-  std::string w;
+
+// Take a string and create a vector of integers to represent 
+// tokens in the string 
+std::vector<int> compress(const std::string &uncompressed) {
+
+  std::map<std::string, int> dictionary = compression_dictionary(); // initialize dictionary
+  std::vector<int> v;
+
+  //for(auto it = uncompressed.begin(); it != uncompressed.end(); ++it){
+    // look for it in the dictionary, if found return its value
+    auto current = dictionary.find(uncompressed.begin()); 
+
+    // If the value found is in the range of the string, lookahead to the next char 
+    // in the string and create a string of these characters to add to the dictionary 
+    if(current != dictionary.end()) {
+      std::string new_key = uncompressed.substr(uncompressed.at(0), 2); // include the current character and the next
+      assert(dictionary.count(new_key) == 0);
+      dictionary.insert(std::pair<std::string, int>(new_key, dictionary.size() + 1));
+      v.push_back(current);
+    }
+    else {
+      std::cout << "in else part\n";
+    }
+
+  //}
+
+
+
+  /*std::string w;
   for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
     char c = *it;
     std::string wc = w + c;
@@ -61,8 +84,11 @@ Iter compress(const std::string &uncompressed, Iter result) {
   if (!w.empty())
     *result++ = dictionary[w];
   return result;
+  */
+
+
 }
-*/
+
 
 // Builds a dictionary of extended ASCII characters
 // The pairs are (int, string) pairs
@@ -92,6 +118,8 @@ std::map<int, std::string> decompression_dictionary() {
 
   return d_dictionary;
 }
+
+
 
 /*
 // Decompress a list of output ks to a string.
@@ -124,8 +152,10 @@ std::string decompress(Iter begin, Iter end) {
 }
 */
 
-/*
-std::string int_to_binary_string(int c, int cl) {
+
+std::string int_to_binary_string(std::vector<int> v) {
+
+  /*
   std::string p; // a binary code string with code length = cl
   while (c > 0) {
     p = (c % 2 == 0) ? "0" + p : "1" + p;
@@ -142,8 +172,13 @@ std::string int_to_binary_string(int c, int cl) {
       p = "0" + p;
   }
   return p;
+  */
+
+  std::bitset<12> b(v.front());
+  std::string s = b.to_string();
+  return s;
 }
-*/
+
 
 /*
 int binary_string_to_int(std::string p) {
@@ -215,8 +250,6 @@ void binaryIODemo(std::vector<int> compressed) {
   }
   outfile.close();
 
-  // Reading from a file
-  std::ifstream infile(fileName.c_str(), std::ios::binary);
 
   struct stat filestatus;
   stat(fileName.c_str(), &filestatus);
@@ -263,18 +296,25 @@ int main(int argc, char *argv[]) {
       return 2;
     }
 
+    // Create a string of the file contents
     std::string in{std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>()};
 
     infile.close();
 
     //\DELETE std::cout << in << "\n"; // output string of file contents
 
-
     switch (*argv[1]) {
       // Compress input file
       // If program was run passing c and filename to compress
       case 'c': {
-        std::map<std::string, int> dictionary = compression_dictionary();
+        //std::map<std::string, int> dictionary = compression_dictionary();
+
+        // Pass input file contents string to get compressed
+        compress(in);
+
+        // Add .lzw extension to input file name
+        filename.append(".lzw");
+        std::cout << filename << "\n";
 
       }
       // binaryIODemo(v);
