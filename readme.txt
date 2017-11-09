@@ -15,7 +15,7 @@ After running the entire sequence of commands, an executable named lzw435 will b
 You can run the program by executing either:
     ./lzw435 c filename
             or
-    ./lzw435 e filename.lzw435
+    ./lzw435 e filename.lzw
 
 Note that filename depends on whatever file you pass when running the program. This can be any file. For example, text.txt, file.txt, monkey.jpg, etc.
 
