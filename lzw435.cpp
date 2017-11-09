@@ -11,9 +11,6 @@ struct lzw {
     lzw(std::map<std::string, int> d) : d(d) {}
 
     std::map<std::string, int> d;
-
-
-
 };
 
 // Builds a dictionary of extended ASCII characters
