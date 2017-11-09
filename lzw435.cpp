@@ -40,54 +40,44 @@ std::map<std::string, int> compression_dictionary() {
 
 // Take a string and create a vector of integers to represent 
 // tokens in the string 
+
 std::vector<int> compress(const std::string &uncompressed) {
 
   std::map<std::string, int> dictionary = compression_dictionary(); // initialize dictionary
   std::vector<int> v;
 
-  //for(auto it = uncompressed.begin(); it != uncompressed.end(); ++it){
-    // look for it in the dictionary, if found return its value
-    auto current = dictionary.find(uncompressed.begin()); 
+  std::string w;
+  for(auto it = uncompressed.begin(); it != uncompressed.end(); ++it){
 
-    // If the value found is in the range of the string, lookahead to the next char 
-    // in the string and create a string of these characters to add to the dictionary 
-    if(current != dictionary.end()) {
-      std::string new_key = uncompressed.substr(uncompressed.at(0), 2); // include the current character and the next
-      assert(dictionary.count(new_key) == 0);
-      dictionary.insert(std::pair<std::string, int>(new_key, dictionary.size() + 1));
-      v.push_back(current);
-    }
-    else {
-      std::cout << "in else part\n";
-    }
-
-  //}
-
-
-
-  /*std::string w;
-  for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
     char c = *it;
     std::string wc = w + c;
-    if (dictionary.count(wc))
+    if (dictionary.find(wc) != dictionary.end())
       w = wc;
     else {
-      *result++ = dictionary[w];
+      v.push_back(dictionary[w]);
+      //*result++ = dictionary[w];
       // Add wc to the dictionary. Assuming the size is 4096!!!
       if (dictionary.size() < 4096)
-        dictionary[wc] = ++dictionary_size;
+        dictionary[wc] = dictionary.size() + 1;
       w = std::string(1, c);
     }
   }
 
+    // If the value found is in the range of the string, lookahead to the next char 
+    // in the string and create a string of these characters to add to the dictionary 
+
   // Output the code for w.
   if (!w.empty())
-    *result++ = dictionary[w];
-  return result;
-  */
+    v.push_back(dictionary[w]);
 
+    return v;
+  }
 
-}
+ 
+ 
+
+  
+
 
 
 // Builds a dictionary of extended ASCII characters
@@ -307,14 +297,15 @@ int main(int argc, char *argv[]) {
       // Compress input file
       // If program was run passing c and filename to compress
       case 'c': {
-        //std::map<std::string, int> dictionary = compression_dictionary();
-
         // Pass input file contents string to get compressed
-        compress(in);
+        // and pass empty vector t
+        std::vector<int> v = compress(in);
 
         // Add .lzw extension to input file name
         filename.append(".lzw");
-        std::cout << filename << "\n";
+
+        for(auto x : v)
+          std::cout << x << " ";
 
       }
       // binaryIODemo(v);
