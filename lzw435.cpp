@@ -73,13 +73,6 @@ std::vector<int> compress(const std::string &uncompressed) {
     return v;
   }
 
- 
- 
-
-  
-
-
-
 // Builds a dictionary of extended ASCII characters
 // The pairs are (int, string) pairs
 // These fill up the keys from 0 to 255
@@ -143,7 +136,7 @@ std::string decompress(Iter begin, Iter end) {
 */
 
 
-std::string int_to_binary_string(std::vector<int> v) {
+std::string int_to_binary_string(std::vector<int> v, std::string s) {
 
   /*
   std::string p; // a binary code string with code length = cl
@@ -163,10 +156,16 @@ std::string int_to_binary_string(std::vector<int> v) {
   }
   return p;
   */
+  // Base case - return binary string of values in vector
+  if(v.empty())
+    return s;
+
 
   std::bitset<12> b(v.front());
-  std::string s = b.to_string();
-  return s;
+  std::string s.append(b.to_string());
+  v.pop()
+  int_to_binary_string(v, s);
+
 }
 
 
@@ -301,11 +300,12 @@ int main(int argc, char *argv[]) {
         // and pass empty vector t
         std::vector<int> v = compress(in);
 
+        std::sting output = int_to_binary_string(v);
+
         // Add .lzw extension to input file name
         filename.append(".lzw");
 
-        for(auto x : v)
-          std::cout << x << " ";
+        std::cout << output;
 
       }
       // binaryIODemo(v);
