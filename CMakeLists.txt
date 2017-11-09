@@ -6,4 +6,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED c++17)
 MESSAGE("Compiler is ${CMAKE_CXX_COMPILER}")
 
 project(lzw CXX)
-add_executable(lzw lzw435.cpp)
+
+add_executable(lzw435 lzw435.cpp)
