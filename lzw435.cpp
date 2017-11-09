@@ -7,42 +7,40 @@
 #include <sys/stat.h>
 #include <vector>
 
-struct lzw {
-    lzw(std::map<std::string, int> d) : d(d) {}
-
-    std::map<std::string, int> d;
-};
-
 // Builds a dictionary of extended ASCII characters
+// The pairs are (string, int) pairs
 // These fill up the keys from 0 to 255
-void build_dictionary() {
+std::map<std::string, int> compression_dictionary() {
 
-  std::map<std::string, int> dictionary;
+  std::map<std::string, int> c_dictionary;
   // Build the dictionary.
-  int dictionary_size = 256;
+  std::size_t dictionary_size = 256;
   for (auto x = 0; x < dictionary_size; ++x)
-    dictionary[std::string(1, x)] = x;
+    c_dictionary[std::string(1, x)] = x;
 
-  std::ofstream out("test.txt", std::ios::binary); // used to write to file test.txt which includes only the pairs in the original dictionary
+  /*
+  //\ DELETE THIS COMMENTED OUT SECTION
+  std::ofstream out("test.txt"); // used to write to file test.txt which
+  includes only the pairs in the original dictionary
+
+  //Loop to write each pair in dictionary to a file, each on its own line
+
   for (auto x : dictionary) {
 
-  out << "( " << x.first << " , " << x.second << " ) " << "\n";
+    out << "( " << x.first << " , " << x.second << " ) "
+        << "\n";
   }
   out.close();
+  */
 
-  //return dictionary;
+  return c_dictionary;
 }
-
+/*
 // Compress a string to a list of output symbols.
 // The result will be written to the output iterator
 // starting at "result"; the final iterator is returned.
 template <typename Iter>
 Iter compress(const std::string &uncompressed, Iter result) {
-  // Build the dictionary.
-  int dictionary_size = 256;
-  std::map<std::string, int> dictionary;
-  for (auto x : dictionary)
-    dictionary.insert(x);
 
   std::string w;
   for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
@@ -64,16 +62,43 @@ Iter compress(const std::string &uncompressed, Iter result) {
     *result++ = dictionary[w];
   return result;
 }
+*/
 
+// Builds a dictionary of extended ASCII characters
+// The pairs are (int, string) pairs
+// These fill up the keys from 0 to 255
+std::map<int, std::string> decompression_dictionary() {
+
+  std::map<int, std::string> d_dictionary;
+  // Build the dictionary.
+  std::size_t dictionary_size = 256;
+  for (auto x = 0; x < dictionary_size; ++x)
+    d_dictionary[x] = std::string(1, x);
+
+  /*
+  //\ DELETE THIS COMMENTED OUT SECTION
+  std::ofstream out("test.txt"); // used to write to file test.txt which
+  //includes only the pairs in the original dictionary
+
+  //Loop to write each pair in dictionary to a file, each on its own line
+
+  for (auto x : d_dictionary) {
+
+    out << "( " << x.first << " , " << x.second << " ) "
+        << "\n";
+  }
+  out.close();
+  */
+
+  return d_dictionary;
+}
+
+/*
 // Decompress a list of output ks to a string.
 // "begin" and "end" must form a valid range of ints
-template <typename Iter>
+template <typename Iter> 
 std::string decompress(Iter begin, Iter end) {
-  // Build the dictionary.
-  int dictionary_size = 256;
-  std::map<int, std::string> dictionary;
-  for (int i = 0; i < 256; ++i)
-    dictionary[i] = std::string(1, i);
+
 
   std::string w(1, *begin++);
   std::string result = w;
@@ -97,7 +122,9 @@ std::string decompress(Iter begin, Iter end) {
   }
   return result;
 }
+*/
 
+/*
 std::string int_to_binary_string(int c, int cl) {
   std::string p; // a binary code string with code length = cl
   while (c > 0) {
@@ -116,9 +143,11 @@ std::string int_to_binary_string(int c, int cl) {
   }
   return p;
 }
+*/
 
+/*
 int binary_string_to_int(std::string p) {
-  /*if(p.size() < 0)
+  if(p.size() < 0)
     return 0;
 
   p = p.at(0) == '1' ? ++code :
@@ -134,7 +163,7 @@ int binary_string_to_int(std::string p) {
     }
 
    return code;
-  */
+
   int code = 0;
   if (p.size() > 0) {
     if (p.at(0) == '1')
@@ -149,6 +178,8 @@ int binary_string_to_int(std::string p) {
   }
   return code;
 }
+*/
+/*
 
 void binaryIODemo(std::vector<int> compressed) {
   std::string bcode;
@@ -211,54 +242,55 @@ void binaryIODemo(std::vector<int> compressed) {
   infile.close();
   std::cout << " saved string : " << s << "\n";
 }
+*/
+
 
 int main(int argc, char *argv[]) {
   try {
 
-    std::vector<int> v;
-
+    // Throw an error if 3 parameters were not passed
     if (argc < 2) {
-      std::cerr << "error: no input files given\n";
+      std::cerr << "ERROR: no input files given\n";
       return 1;
     }
 
     std::string filename = argv[2];
     std::ifstream infile(filename.c_str(), std::ios::binary);
 
-    if(!infile.is_open()) {
-      std::cerr << "error: file cannot be read\n";
+    // Throw an error if the file cannot be opened
+    if (!infile.is_open()) {
+      std::cerr << "ERROR: file cannot be opened. Check that the file exists.\n";
       return 2;
     }
 
-    std::string in {std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>()};
-
-    std::cout << in << "\n";
+    std::string in{std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>()};
 
     infile.close();
 
-    build_dictionary(); // populate dictionary with  initial values
+    //\DELETE std::cout << in << "\n"; // output string of file contents
 
-    // Run program passing c and filename to compress
+
     switch (*argv[1]) {
       // Compress input file
+      // If program was run passing c and filename to compress
       case 'c': {
+        std::map<std::string, int> dictionary = compression_dictionary();
 
-     }
-      //compress(v, v.end());
-      //copy(v.begin(), v.end(), std::ostream_iterator<int>(std::cout, ", "));
-        //binaryIODemo(v);
-        // Expand input file
+      }
+      // binaryIODemo(v);
+      // Expand input file
       case 'e': {
         // Save expanded file as filename2
         // filename2 should be identical to filename
-        //std::string dev = decompress(v.begin(), v.end());
-        //std::cout << "\n" << dev << "\n";
+        std::map<int, std::string> dictionary = decompression_dictionary();
+        // std::string dev = decompress(v.begin(), v.end());
+        // std::cout << "\n" << dev << "\n";
       }
     }
-  }
+  } 
   catch (char const *err) {
     std::cout << "The library threw an exception:\n" << err << "\n";
   }
 
-    return 0;
+  return 0;
 }
