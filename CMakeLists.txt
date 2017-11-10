@@ -10,3 +10,4 @@ MESSAGE("Compiler is ${CMAKE_CXX_COMPILER}")
 project(lzw CXX)
 
 add_executable(lzw435 lzw435_main.cpp lzw435.cpp)
+

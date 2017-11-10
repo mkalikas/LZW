@@ -1,5 +1,4 @@
 #include <cassert>
-#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <map>
@@ -25,34 +24,37 @@ std::map<std::string, int> compression_dictionary() {
 
 
 // Take a string and create a vector of integers to represent 
-// tokens in the string 
+// tokens in the string
 std::vector<int> compress(const std::string &uncompressed) {
 
-  std::map<std::string, int> dictionary = compression_dictionary(); // initialize dictionary
+  std::map<std::string, int> dictionary =
+      compression_dictionary(); // initialize dictionary
+
   std::vector<int> v;
 
   std::string w;
-  for(auto it = uncompressed.begin(); it != uncompressed.end(); ++it){
+  for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
 
     char c = *it;
     std::string wc = w + c;
-    if (dictionary.find(wc) != dictionary.end())
+    if (dictionary.count(wc))
       w = wc;
-    else {
-      v.push_back(1 + dictionary[w]);
+    else { // wc is not in the dictionary, add it
+      v.push_back(dictionary[w]);
       // Add wc to the dictionary. Assuming the size is 4096!!!
       if (dictionary.size() < 4096)
         dictionary[wc] = dictionary.size() + 1;
       w = std::string(1, c);
     }
+  
   }
 
   // Output the code for w.
   if (!w.empty())
     v.push_back(dictionary[w]);
 
-    return v;
-  }
+  return v;
+}
 
 // Builds a dictionary of extended ASCII characters
 // The pairs are (int, string) pairs
@@ -70,41 +72,44 @@ std::map<int, std::string> decompression_dictionary() {
 
 // Decompress a list of output ks to a string.
 // "begin" and "end" must form a valid range of ints 
+
 std::string decompress(std::string &compressed) {
 
   std::map<int, std::string> dictionary = decompression_dictionary();
-
+  std::string ret;
    // initialize a string to read the first 12 characters in the compressed string
-  std::string w(compressed.begin(), compressed.begin()+12);
+  for(auto it = compressed.begin(); it != compressed.end(); it + 12) {
+    std::string value = compressed.substr(*it, 12);
+    int b = binary_string_to_int(value);
+    ret.append(std::to_string(b));
+    
+    std::map<int, std::string>::iterator i = dictionary.find(b);
+    if (i != dictionary.end()) {
+      dictionary[b] = std::string(1, b);
+    }
+    else { // not found
+      std::string nx = compressed.substr(*(it + 12), 12);
+      b += binary_string_to_int(nx);
+      std::string entry = std::to_string(b);
+      ret.append(entry);
+      if(dictionary.size() < 4096)
+        dictionary[dictionary.size() + 1] = entry + entry;
 
-  std::string result = w;
-  std::string entry;
-  for (auto it = compressed.begin(); it != compressed.end(); ++it ) {
-    int k = *it;
-    if (dictionary.count(k))
-      entry = dictionary[k];
-    else if (k == dictionary.size())
-      entry = w.substr(w.front(), 1);
-    else
-      throw "Bad compressed k";
+    }
 
-    result.append(entry);
 
-    if (dictionary.size() < 4096)
-      dictionary[dictionary.size() + 1] = w + entry.front();
-
-    w = entry;
-  }
-  return result;
+  }  
+  return ret;
 }
+
 
 std::string int_to_binary_string(std::vector<int> &v, std::string s) {
 
   while(!v.empty()) {
-  std::bitset<12> b(v.front());
-  s.append(b.to_string());
-  v.erase(v.begin());
-  //int_to_binary_string(v, s);
+    std::bitset<12> b(v.front());
+    s.append(b.to_string());
+    v.erase(v.begin());
+    //int_to_binary_string(v, s);
 
   }
   

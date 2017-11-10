@@ -78,8 +78,10 @@ std::string decompress(std::string &compressed) {
 
   std::string result = w;
   std::string entry;
-  for (auto it = compressed.begin(); it != compressed.end(); ++it ) {
+  for (auto it = compressed.begin(); it != compressed.end(); it + 12) {
+    
     int k = *it;
+
     if (dictionary.count(k))
       entry = dictionary[k];
     else if (k == dictionary.size())
@@ -97,8 +99,8 @@ std::string decompress(std::string &compressed) {
   return result;
 }
 
-std::string int_to_binary_string(std::vector<int> &v, std::string s) {
-
+std::string int_to_binary_string(std::vector<int> &v) {
+std::string s;
   while(!v.empty()) {
   std::bitset<12> b(v.front());
   s.append(b.to_string());
@@ -132,27 +134,27 @@ int binary_string_to_int(std::string p) {
 }
 
 int main(int argc, char *argv[]) {
+  // Throw an error if 3 parameters were not passed
+  if (argc < 2) {
+    std::cerr << "ERROR: no input files given\n";
+    return 1;
+  }
+
+  std::string filename = argv[2];
+  std::ifstream infile(filename.c_str(), std::ios::binary);
+
+  // Throw an error if the file cannot be opened
+  if (!infile.is_open()) {
+    std::cerr << "ERROR: file cannot be opened. Check that the file exists.\n";
+    return 2;
+  }
+
+  // Create a string of the file contents
+  std::string in{std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>()};
+
+  infile.close();
+
   try {
-
-    // Throw an error if 3 parameters were not passed
-    if (argc < 2) {
-      std::cerr << "ERROR: no input files given\n";
-      return 1;
-    }
-
-    std::string filename = argv[2];
-    std::ifstream infile(filename.c_str(), std::ios::binary);
-
-    // Throw an error if the file cannot be opened
-    if (!infile.is_open()) {
-      std::cerr << "ERROR: file cannot be opened. Check that the file exists.\n";
-      return 2;
-    }
-
-    // Create a string of the file contents
-    std::string in{std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>()};
-
-    infile.close();
 
     switch (*argv[1]) {
       // Compress input file
@@ -162,15 +164,15 @@ int main(int argc, char *argv[]) {
         // and pass empty vector t
         std::vector<int> v = compress(in);
 
-        std::string output = int_to_binary_string(v, " ");
+        std::string output = int_to_binary_string(v);
 
         // Add .lzw extension to input file name
         filename.append(".lzw");
 
         std::ofstream out(filename.c_str(), std::ios::binary);
         out << output;
-
         out.close();
+        break;
 
       }
       // binaryIODemo(v);
@@ -178,11 +180,11 @@ int main(int argc, char *argv[]) {
       case 'e': {
         // Save expanded file as filename2
         // filename2 should be identical to filename
-        std::map<int, std::string> dictionary = decompression_dictionary();
         std::string d = decompress(in);
         std::ofstream out(filename.append("2").c_str(), std::ios::binary);
         out << d;
         out .close();
+        break;
       }
     }
   } 
