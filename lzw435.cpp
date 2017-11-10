@@ -11,8 +11,7 @@
 // Builds a dictionary of extended ASCII characters
 // The pairs are (string, int) pairs
 // These fill up the keys from 0 to 255
-std::map<std::string, int> compression_dictionary() {
-
+std::map<std::string, int> compression_dictionary()
   std::map<std::string, int> c_dictionary;
   // Build the dictionary.
   std::size_t dictionary_size = 256;
@@ -23,7 +22,7 @@ std::map<std::string, int> compression_dictionary() {
 }
 
 
-// Take a string and create a vector of integers to represent 
+// Take a string and create a vector of integers to represent
 // tokens in the string
 std::vector<int> compress(const std::string &uncompressed) {
 
@@ -46,7 +45,7 @@ std::vector<int> compress(const std::string &uncompressed) {
         dictionary[wc] = dictionary.size() + 1;
       w = std::string(1, c);
     }
-  
+
   }
 
   // Output the code for w.
@@ -71,7 +70,7 @@ std::map<int, std::string> decompression_dictionary() {
 }
 
 // Decompress a list of output ks to a string.
-// "begin" and "end" must form a valid range of ints 
+// "begin" and "end" must form a valid range of ints
 
 std::string decompress(std::string &compressed) {
 
@@ -82,7 +81,7 @@ std::string decompress(std::string &compressed) {
     std::string value = compressed.substr(*it, 12);
     int b = binary_string_to_int(value);
     ret.append(std::to_string(b));
-    
+
     std::map<int, std::string>::iterator i = dictionary.find(b);
     if (i != dictionary.end()) {
       dictionary[b] = std::string(1, b);
@@ -94,14 +93,11 @@ std::string decompress(std::string &compressed) {
       ret.append(entry);
       if(dictionary.size() < 4096)
         dictionary[dictionary.size() + 1] = entry + entry;
-
     }
 
-
-  }  
+  }
   return ret;
 }
-
 
 std::string int_to_binary_string(std::vector<int> &v, std::string s) {
 
@@ -112,7 +108,7 @@ std::string int_to_binary_string(std::vector<int> &v, std::string s) {
     //int_to_binary_string(v, s);
 
   }
-  
+
   // Return binary string of values in vector
   if(v.empty())
     return s;

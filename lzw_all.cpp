@@ -23,13 +23,12 @@ std::map<std::string, int> compression_dictionary() {
 }
 
 
-// Take a string and create a vector of integers to represent 
-// tokens in the string 
-std::vector<int> compress(const std::string &uncompressed) {
+// Take a string and create a vector of integers to represent
+// tokens in the string
+template <typename Iterator>
+Iter compress(const std::string &uncompressed, Iter ret) {
 
   std::map<std::string, int> dictionary = compression_dictionary(); // initialize dictionary
-  std::vector<int> v;
-
   std::string w;
   for(auto it = uncompressed.begin(); it != uncompressed.end(); ++it){
 
@@ -38,7 +37,7 @@ std::vector<int> compress(const std::string &uncompressed) {
     if (dictionary.find(wc) != dictionary.end())
       w = wc;
     else {
-      v.push_back(1 + dictionary[w]);
+      *ret++ dictionary[w];
       // Add wc to the dictionary. Assuming the size is 4096!!!
       if (dictionary.size() < 4096)
         dictionary[wc] = dictionary.size() + 1;
@@ -48,9 +47,9 @@ std::vector<int> compress(const std::string &uncompressed) {
 
   // Output the code for w.
   if (!w.empty())
-    v.push_back(dictionary[w]);
+    *ret++ = dictionary[w];
 
-    return v;
+  return ret;
   }
 
 // Builds a dictionary of extended ASCII characters
@@ -68,31 +67,50 @@ std::map<int, std::string> decompression_dictionary() {
 }
 
 // Decompress a list of output ks to a string.
-// "begin" and "end" must form a valid range of ints 
-std::string decompress(std::string &compressed) {
+// "begin" and "end" are iterators to the beginning and ending of a range
+// when this is called in main, begin and end point to begin and end in compressed string
+template <typename Iter>
+std::string decompress(Iter it_begin, Iter end) {
 
   std::map<int, std::string> dictionary = decompression_dictionary();
 
    // initialize a string to read the first 12 characters in the compressed string
-  std::string w(compressed.begin(), compressed.begin()+12);
+   /*
+   std::string bcode = "";
+   for (std::vector<int>::iterator it = compressed.begin();
+        it != compressed.end(); ++it) {
+     if (*it < 256)
+       bits = 8;
+     else
+       bits = 9;
 
-  std::string result = w;
+     bits = 12;
+     p = int2BinaryString(*it, bits);
+     std::cout << "c=" << *it << " : binary string=" << p
+               << "; back to code=" << binaryString2Int(p) << "\n";
+     bcode += p;
+   }
+   */
+  std::string w(1, *it_begin++); // std::string value(*it, 12); need to move 12 postitions over
+
+  std::string result = w; // what is returned
   std::string entry;
-  for (auto it = compressed.begin(); it != compressed.end(); it + 12) {
-    
-    int k = *it;
+  for (; begin != end; ++begin) {
+    int k = *it_begin; // int b = binary_string_to_int(value);
+    // ret.append(std::to_string(b));
+    //std::map<int, std::string>::iterator i = dictionary.find(b);
 
     if (dictionary.count(k))
       entry = dictionary[k];
     else if (k == dictionary.size())
-      entry = w.substr(w.front(), 1);
+      entry = w.substr(w.begin(), 1); // entry = w + w.at(0)
     else
       throw "Bad compressed k";
 
-    result.append(entry);
+    result.append(entry); // result += entry
 
     if (dictionary.size() < 4096)
-      dictionary[dictionary.size() + 1] = w + entry.front();
+      dictionary[dictionary.size() + 1] = w + entry.begin(); // w + entry[0]
 
     w = entry;
   }
@@ -106,13 +124,11 @@ std::string s;
   s.append(b.to_string());
   v.erase(v.begin());
   //int_to_binary_string(v, s);
-
   }
-  
+
   // Return binary string of values in vector
   if(v.empty())
     return s;
-
 }
 
 
@@ -162,7 +178,8 @@ int main(int argc, char *argv[]) {
       case 'c': {
         // Pass input file contents string to get compressed
         // and pass empty vector t
-        std::vector<int> v = compress(in);
+        std::vector<int> v;
+        compress(in, std::back_inserter(v));
 
         std::string output = int_to_binary_string(v);
 
@@ -180,14 +197,15 @@ int main(int argc, char *argv[]) {
       case 'e': {
         // Save expanded file as filename2
         // filename2 should be identical to filename
-        std::string d = decompress(in);
-        std::ofstream out(filename.append("2").c_str(), std::ios::binary);
+        std::string d = decompress(in.begin(), in.end());
+        filename.append("2")
+        std::ofstream out(filename.c_str(), std::ios::binary);
         out << d;
         out .close();
         break;
       }
     }
-  } 
+  }
   catch (char const *err) {
     std::cout << "The library threw an exception:\n" << err << "\n";
   }
