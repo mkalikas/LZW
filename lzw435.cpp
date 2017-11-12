@@ -11,7 +11,7 @@
 // Builds a dictionary of extended ASCII characters
 // The pairs are (string, int) pairs
 // These fill up the keys from 0 to 255
-std::map<std::string, int> compression_dictionary()
+std::map<std::string, int> compression_dictionary() {
   std::map<std::string, int> c_dictionary;
   // Build the dictionary.
   std::size_t dictionary_size = 256;
