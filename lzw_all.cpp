@@ -74,26 +74,23 @@ std::vector<int> compress(const std::string &uncompressed) {
   std::map<std::string, int> dictionary =compression_dictionary(); // initialize dictionary
 
   std::vector<int> v;
-
   std::string w;
-  for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
 
-   // char c = *it;
+  for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
     std::string wc = w + *it;
     if (dictionary.count(wc))
       w = wc;
     else { // wc is not in the dictionary, add it
       v.push_back(dictionary[w]);
 
-      // Add wc to the dictionary
       if (dictionary.size() == 4096)
         return v;
 
+      // Add wc to the dictionary
       dictionary[wc] = dictionary.size() + 1;
       w = std::string(1, *it);
     }
   }
-  // Output the code for w.
 //  if (!w.empty())
   v.push_back(dictionary[w]);
 
@@ -171,7 +168,7 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
   while(!v.empty()) {
     std::string str = "";
     int code = v.front();
-    //std::cout << code << "\n";
+    std::cout << code << "\n";
     while (code > 0) {
       if (code % 2 == 0)
         str = "0" + str;
@@ -181,9 +178,10 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
     }
     int zeros = 12 - str.size();
     if (zeros < 0) {
-      std::cout << "\nWarning: Overflow. code " << code << " is too big to be coded by 12 bits!\n";
-      str = str.substr(str.size() - 12);
-    } else {
+      throw "Warning: Overflow. Code is too big to be coded by 12 bits!\n";
+      //str = str.substr(str.size() - 12);
+    }
+    else {
       for (auto i = 0; i < zeros; ++i) // pad 0s to left of the binary code if needed
         str = "0" + str;
     }
