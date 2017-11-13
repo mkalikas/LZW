@@ -84,7 +84,7 @@ std::vector<int> compress(const std::string &uncompressed) {
       w = wc;
     else { // wc is not in the dictionary, add it
       v.push_back(dictionary[w]);
-      
+
       // Add wc to the dictionary
       if (dictionary.size() < 4096)
         dictionary[wc] = dictionary.size() + 1;
@@ -124,15 +124,17 @@ std::vector<std::string> separate(std::string &s, int bit_length) {
 // Recursively computes the value of the string as an integer, then checks to
 // see if the value is in the dictionary. If it is not, it adds it.
 std::string decompress(std::vector<std::string> &v) {
-
+  assert(!v.empty());
   std::map<int, std::string> dictionary = decompression_dictionary();
 
-  std::string s;
-  while (!v.empty()) {
-    int i = binary_string_to_int(v.front());
-    //v.erase(v.begin());
+  std::string s = "decompress\n";
+  for(auto it = v.begin(); it != v.end(); ++it) {
+    std::cout << v.front() << " ";
 
+    //int b = binary_string_to_int(str);
 
+  }
+  /*
   std::string w(1, v.front()); // std::string value(*it, 12); need to move 12 positions over
 
   std::string result = w; // what is returned
@@ -156,10 +158,7 @@ std::string decompress(std::vector<std::string> &v) {
 
     w = entry;
   }
-  return result;
-
-
-  }
+  */
   return s;
 
 }
@@ -180,7 +179,7 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
 
   auto code = v.front();
   while (code > 0) {
-    
+
     s = (code % 2 == 0) ? ("0" + s) : (s = "1" + s);
     code = code >> 1;
   }
@@ -203,12 +202,12 @@ int binary_string_to_int(std::string s) {
   if (s.size() > 0) {
     if (s.at(0) == '1')
       code = 1;
-    s.substr(1);
+    s = s.substr(1);
     while (s.size() > 0) {
       code = code << 1;
       if (s.at(0) == '1')
         code++;
-      s.substr(1);
+      s = s.substr(1);
     }
   }
   return code;
@@ -262,7 +261,7 @@ int main(int argc, char *argv[]) {
       // Save expanded file as filename2
       // filename2 should be identical to filename
       // separate the input into strings of length 12,
-      // put these strings into a vector 
+      // put these strings into a vector
       std::vector<std::string> v = separate(in, 12);
       std::string d = decompress(v);
       filename.append("2");
