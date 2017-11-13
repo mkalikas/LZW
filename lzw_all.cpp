@@ -164,36 +164,31 @@ std::string decompress(std::vector<std::string> &v) {
 }
 
 std::string int_to_binary_string(std::vector<int> v, std::string s) {
+  while(!v.empty()) {
+    std::string str = "";
+    int code = v.front();
+    std::cout << code << "\n";
+    while (code > 0) {
+      if (code % 2 == 0)
+        str = "0" + str;
+      else
+        str = "1" + str;
+      code = code >> 1;
+    }
+    int zeros = 12 - str.size();
+    if (zeros < 0) {
+      std::cout << "\nWarning: Overflow. code " << code << " is too big to be coded by 12 bits!\n";
+      str = str.substr(str.size() - 12);
+    } else {
+      for (auto i = 0; i < zeros; ++i) // pad 0s to left of the binary code if needed
+        str = "0" + str;
+    }
+    s.append(str);
+    v.erase(v.begin());
+  }
 
   if(v.empty())
     return s;
-    //throw "ERROR: Cannot compute an empty vector!";
-
-  /*
-  while(!v.empty()) {
-    std::bitset<12> b(v.front());
-    s.append(std::to_string(b));
-    v.erase(v.begin());
-  }
-  */
-
-  auto code = v.front();
-  while (code > 0) {
-
-    s = (code % 2 == 0) ? ("0" + s) : (s = "1" + s);
-    code = code >> 1;
-  }
-  auto zeros = 12 - s.size();
-  if (zeros < 0) {
-    std::cout << "\nWarning: Overflow. code " << code << " is too big to be coded by 12 bits!\n";
-    s.substr(s.size() - 12);
-  } else {
-    for (auto i = 0; i < zeros; i++) // pad 0s to left of the binary code if needed
-      s = "0" + s;
-  }
-  v.erase(v.begin());
-  int_to_binary_string(v, s);
-  //return s;
 }
 
 int binary_string_to_int(std::string s) {
