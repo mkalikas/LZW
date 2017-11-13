@@ -62,3 +62,5 @@ If you choose this method to run the program, the output file will be written to
 If this is the case, the file passed when executing the program by
 passing e will not include a ../ before the filename and will instead be executed as described above for running the program by passing e and
 filename.lzw.
+
+I included two functions to create the dictionary in the file for part one and part two. When a file is being compressed, the dictionary function creates a map of string, integer pairs. When a file is being expanded, the dictionary function creates a map of integer, string pairs. 

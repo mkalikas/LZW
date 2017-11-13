@@ -105,9 +105,9 @@ std::vector<int> compress(const std::string &uncompressed) {
   them to a vector. Returns the vector after the entire
   input string has been separated into substrings.
 */
-std::vector<std::string> separate(std::string &s, int bit_length) {
+std::vector<std::string> separate(std::string &s) {
   std::vector<std::string> v;
-  for (int i = 0; i < s.size(); i += bit_length) {
+  for (auto i = 0; i < s.size(); ++i) {
     std::string str = s.substr(s.at(i), s.at(i + bit_length));
     std::cout << str;
     // assert(str.length() == bit_length);
@@ -115,7 +115,6 @@ std::vector<std::string> separate(std::string &s, int bit_length) {
   }
   return v;
 }
-
 // Decompress a list of output ks to a string.
 // "begin" and "end" are iterators to the beginning and ending of a range
 // when this is called in main, begin and end point to begin and end in
@@ -127,13 +126,28 @@ std::string decompress(std::vector<std::string> &v) {
 
   std::map<int, std::string> dictionary = decompression_dictionary();
 
-  std::string s;
   while (!v.empty()) {
-    int i = binary_string_to_int(v.front());
-    //v.erase(v.begin());
+  }
+  // initialize a string to read the first 12 characters in the compressed
+  // string
+  /*
+  std::string bcode = "";
+  for (std::vector<int>::iterator it = compressed.begin();
+       it != compressed.end(); ++it) {
+    if (*it < 256)
+      bits = 8;
+    else
+      bits = 9;
 
-
-  std::string w(1, v.front()); // std::string value(*it, 12); need to move 12 positions over
+    bits = 12;
+    p = int2BinaryString(*it, bits);
+    std::cout << "c=" << *it << " : binary string=" << p
+              << "; back to code=" << binaryString2Int(p) << "\n";
+    bcode += p;
+  }
+  */
+  std::string w(1, *it_begin++); // std::string value(*it, 12); need to move 12
+                                 // postitions over
 
   std::string result = w; // what is returned
   std::string entry;
@@ -157,49 +171,93 @@ std::string decompress(std::vector<std::string> &v) {
     w = entry;
   }
   return result;
-
-
-  }
-  return s;
-
 }
 
-std::string int_to_binary_string(std::vector<int> v, std::string s) {
+std::tuple<int, int> get_code_and_length(std::vector<int> v) {
+  // Return binary string of values in vector
+  if (v.empty())
+    throw "ERROR: Cannot compute an empty vector.";
 
-  if(v.empty())
-    return s;
-    //throw "ERROR: Cannot compute an empty vector!";
+  while (!v.empty()) {
+    int bits;
+    auto f = v.front();
 
-  /*
-  while(!v.empty()) {
-    std::bitset<12> b(v.front());
-    s.append(std::to_string(b));
-    v.erase(v.begin());
+    if (f < 256) {
+      bits = 8;
+      v.erase(v.begin());
+      return {f, bits};
+    }
+    if (f < 512) {
+      bits = 9;
+      v.erase(v.begin());
+      return {f, bits};
+    } else if (f < 1'024) {
+      bits = 10;
+      v.erase(v.begin());
+
+      return {f, bits};
+    } else if (f < 2'048) {
+      bits = 11;
+      v.erase(v.begin());
+
+      return {f, bits};
+    } else if (f < 4'096) {
+      bits = 12;
+      v.erase(v.begin());
+
+      return {f, bits};
+    } else if (f < 8'192) {
+      bits = 13;
+      v.erase(v.begin());
+
+      return {f, bits};
+    } else if (f < 16'384) {
+      bits = 14;
+      v.erase(v.begin());
+
+      return {f, bits};
+    } else if (f < 32'768) {
+      bits = 15;
+      v.erase(v.begin());
+
+      return {f, bits};
+    } else if (f < 65'536) {
+      bits = 16;
+      v.erase(v.begin());
+
+      return {f, bits};
+    } else
+      throw "ERROR: Cannot create a bit length longer than 16 bits.";
   }
-  */
+}
 
-  auto code = v.front();
-  while (code > 0) {
-    
-    s = (code % 2 == 0) ? ("0" + s) : (s = "1" + s);
-    code = code >> 1;
+std::string int_to_binary_string(int value, int bits) {
+  std::string s;
+  //std::bitset<bits> b(value);
+  //s.append(std::to_string(b));
+
+  auto code = value;
+  while (value > 0) {
+    if (value % 2 == 0)
+      s = "0" + s;
+    else
+      s = "1" + s;
+    value = value >> 1;
   }
-  auto zeros = 12 - s.size();
+  auto zeros = bits - s.size();
   if (zeros < 0) {
-    std::cout << "\nWarning: Overflow. code " << code << " is too big to be coded by 12 bits!\n";
-    s.substr(s.size() - 12);
+    std::cout << "\nWarning: Overflow. code " << code << " is too big to be coded by " << bits << " bits!\n";
+    s.substr(s.size() - bits);
   } else {
     for (auto i = 0; i < zeros; i++) // pad 0s to left of the binary code if needed
       s = "0" + s;
   }
-  v.erase(v.begin());
-  int_to_binary_string(v, s);
-  //return s;
+  return s;
 }
 
-int binary_string_to_int(std::string s) {
+auto binary_string_to_int(std::string s) {
 
-  int code = 0;
+  auto code = 0;
   if (s.size() > 0) {
     if (s.at(0) == '1')
       code = 1;
@@ -246,7 +304,7 @@ int main(int argc, char *argv[]) {
       // and pass empty vector t
       std::vector<int> v = compress(in);
 
-      std::string output = int_to_binary_string(v, "");
+      std::string output = int_to_binary_string(std::get<1>(get_code_and_length(v)), std::get<2>(get_code_and_length(v)));
 
       // Add .lzw extension to input file name
       filename.append(".lzw");
@@ -261,9 +319,7 @@ int main(int argc, char *argv[]) {
     case 'e': {
       // Save expanded file as filename2
       // filename2 should be identical to filename
-      // separate the input into strings of length 12,
-      // put these strings into a vector 
-      std::vector<std::string> v = separate(in, 12);
+      std::vector<std::string> v = separate(in);
       std::string d = decompress(v);
       filename.append("2");
       std::ofstream out(filename.c_str(), std::ios::binary);
