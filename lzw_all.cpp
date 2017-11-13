@@ -86,15 +86,16 @@ std::vector<int> compress(const std::string &uncompressed) {
       v.push_back(dictionary[w]);
 
       // Add wc to the dictionary
-      if (dictionary.size() < 4096)
-        dictionary[wc] = dictionary.size() + 1;
+      if (dictionary.size() == 4096)
+        return v;
+
+      dictionary[wc] = dictionary.size() + 1;
       w = std::string(1, *it);
     }
   }
-
   // Output the code for w.
-  if (!w.empty())
-    v.push_back(dictionary[w]);
+//  if (!w.empty())
+  v.push_back(dictionary[w]);
 
   return v;
 }
@@ -112,6 +113,7 @@ std::vector<std::string> separate(std::string &s, int bit_length) {
     std::cout << str;
     // assert(str.length() == bit_length);
     v.push_back(str);
+    s.clear();
   }
   return v;
 }
@@ -127,9 +129,11 @@ std::string decompress(std::vector<std::string> &v) {
   assert(!v.empty());
   std::map<int, std::string> dictionary = decompression_dictionary();
 
-  std::string s = "decompress\n";
+  std::string s = "";
   for(auto it = v.begin(); it != v.end(); ++it) {
-    std::cout << v.front() << " ";
+    //std::string w(1, v.begin()); // std::string value(*it, 12); need to move 12 positions over
+    std::string w = v.front();
+    std::cout << w << " ";
 
     //int b = binary_string_to_int(str);
 
@@ -167,7 +171,7 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
   while(!v.empty()) {
     std::string str = "";
     int code = v.front();
-    std::cout << code << "\n";
+    //std::cout << code << "\n";
     while (code > 0) {
       if (code % 2 == 0)
         str = "0" + str;
