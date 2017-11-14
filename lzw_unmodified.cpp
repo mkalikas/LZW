@@ -57,20 +57,29 @@ std::string decompress(Iterator begin, Iterator end) {
   std::string result = w;
   std::cout << result << "???:::\n";
   std::string entry;
+
   for (; begin != end; begin++) {
     int k = *begin;
-    if (dictionary.count(k))
+    if (dictionary.count(k)) {
       entry = dictionary[k];
-    else if (k == dictSize)
+    }
+    else if (k == dictSize) {
       entry = w + w[0];
+            std::cout << "in this loop\n";
+
+      std::cout << entry << " entry\n";
+      std::cout << w << " " << w[0] << "\n";
+    }
     else
       throw "Bad compressed k";
 
     result += entry;
+    std::cout << result << " result " << entry << " entry\n";
 
     // Add w+entry[0] to the dictionary.
-    if (dictionary.size() < 4096)
+    if (dictionary.size() < 4096) {
       dictionary[dictSize++] = w + entry[0];
+    }
 
     w = entry;
   }
@@ -117,11 +126,10 @@ int binaryString2Int(std::string p) {
 }
 
 void binaryIODemo(std::vector<int> compressed) {
-  int c = 69;
+  int c;
   int bits = 9;
   std::string p = int2BinaryString(c, bits);
-  std::cout << "c=" << c << " : binary string=" << p
-            << "; back to code=" << binaryString2Int(p) << "\n";
+  std::cout << "c=" << c << " : binary string=" << p << "; back to code=" << binaryString2Int(p) << "\n";
 
   std::string bcode = "";
   for (std::vector<int>::iterator it = compressed.begin();
@@ -195,7 +203,8 @@ void binaryIODemo(std::vector<int> compressed) {
 
 int main() {
   std::vector<int> compressed;
-  compress("AAAAAAABBBBBB", std::back_inserter(compressed));
+ // AAAAAABBBBBB
+  compress("ABAABAAABABAABAAABABAABAAA", std::back_inserter(compressed));
   copy(compressed.begin(), compressed.end(),
        std::ostream_iterator<int>(std::cout, ", "));
   std::cout << std::endl;

@@ -2,9 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#include <map>
-#include <string>
-#include <vector>
+
 
 int main(int argc, char *argv[]) {
   // Throw an error if 3 parameters were not passed
@@ -23,46 +21,48 @@ int main(int argc, char *argv[]) {
   }
 
   // Create a string of the file contents
-    std::string in{std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>()};
+  std::string in{std::istreambuf_iterator<char>(infile),
+                 std::istreambuf_iterator<char>()};
 
-    infile.close();
+  infile.close();
 
   try {
+
     switch (*argv[1]) {
-     
-      // If program was run passing c and filename to compress
-      case 'c': { 
-        // Pass input file contents to get compressed
-        // Set vector v to compressed string
-        std::vector<int> v = compress(in);
+    // Compress input file
+    // If program was run passing c and filename to compress
+    case 'c': {
+      // Pass input file contents string to get compressed
+      // and pass empty vector t
+      std::vector<int> v = compress(in);
 
-        std::string output = int_to_binary_string(v, "");
+      std::string output = int_to_binary_string(v, "");
 
-        // Add .lzw extension to input file name
-        filename.append(".lzw");
+      // Add .lzw extension to input file name
+      filename.append(".lzw");
 
-        std::ofstream out(filename.c_str(), std::ios::binary);
-        out << output;
-
-        out.close();
-        break;
-
-      }
-      // Expand input file
-      case 'e': {
-        // Save expanded file as filename2
-        // filename2 should be identical to filename
-        //\std::map<int, std::string> dictionary = decompression_dictionary();
-        std::string d = decompress(in);
-        //std::cout << d << " ";
-        std::ofstream out(filename.append("2").c_str(), std::ios::binary);
-        out << d;
-        out.close();
-        break;
-      }
+      std::ofstream out(filename.c_str(), std::ios::binary);
+      out << output;
+      out.close();
+      break;
     }
-  } 
-  catch (char const *err) {
+    // Expand input file
+    case 'e': {
+      // filename2 should be identical to filename
+      // separate the input into strings of length 12,
+      // put these strings into a vector of integers
+      std::vector<int> v = separate(in, 12);
+
+      std::string d = decompress(v);
+      filename.append("2"); // Save expanded file as filename2
+
+      std::ofstream out(filename.c_str(), std::ios::binary);
+      out << d;
+      out.close();
+      break;
+    }
+    }
+  } catch (char const *err) {
     std::cout << "The library threw an exception:\n" << err << "\n";
   }
 

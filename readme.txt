@@ -63,4 +63,19 @@ If this is the case, the file passed when executing the program by
 passing e will not include a ../ before the filename and will instead be executed as described above for running the program by passing e and
 filename.lzw.
 
+I included a .hpp file that includes the prototypes for all of
+my functions that are used to compute the compression and 
+decompression for part one.
+
 I included two functions to create the dictionary in the file for part one and part two. When a file is being compressed, the dictionary function creates a map of string, integer pairs. When a file is being expanded, the dictionary function creates a map of integer, string pairs. 
+
+For decompression, I included a function that separates the string input into groups of 12. 
+The separated strings are then passed to the binary_string_to_int
+function. Their result is returned as an integer and then put into a vector of integers.
+This vector is then used for decompression. The decompression 
+function takes a vector of integers and returns a string 
+representing each integer as a string in the map by recursively
+checking to see if the integer value is found in the dictionary.
+If it is not, it is added and the corresponding string is matched as the integer pair in the map.
+The resulting string is expected to be the file contents 
+of the original file before compression.
