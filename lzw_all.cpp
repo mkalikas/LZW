@@ -9,6 +9,8 @@
 #include <tuple>
 #include <vector>
 
+int binary_string_to_int(std::string s);
+
 // Builds a dictionary of extended ASCII characters
 // The pairs are (string, int) pairs
 // These fill up the keys from 0 to 255
@@ -103,16 +105,31 @@ std::vector<int> compress(const std::string &uncompressed) {
   them to a vector. Returns the vector after the entire
   input string has been separated into substrings.
 */
-std::vector<std::string> separate(std::string &s, int bit_length) {
-  std::vector<std::string> v;
+std::vector<int> separate(std::string &s, int bit_length) {
+  std::vector<int> v;
+  assert(s.length() % bit_length == 0);
+
   for (int i = 0; i < s.size(); i += bit_length) {
-    std::string str = s.substr(s.at(i), s.at(i + bit_length));
-    std::cout << str;
-    // assert(str.length() == bit_length);
-    v.push_back(str);
-    s.clear();
+    std::string str = s.substr(i, bit_length);
+    assert(str.length() == bit_length);
+  //\DELETE: set integer value to string //val = binary_string_to_int(str);
+    v.push_back(binary_string_to_int(str));
   }
+  for(int i = 0; i < v.size(); ++i)
+    std::cout << v.at(i) << " ";
+  std::cout << "\n";
   return v;
+}
+
+std::vector<int> decompress_to_int(std::vector<std::string> v) {
+  std::vector<int> v2;
+  for(int i = 0; i < v.size(); ++i) {
+    int value = binary_string_to_int(v.at(i));
+    v2.push_back(value);
+    std::cout << v2.at(i) << " ";
+  }
+  std::cout << "\n";
+  return v2;
 }
 
 // Decompress a list of output ks to a string.
@@ -122,17 +139,35 @@ std::vector<std::string> separate(std::string &s, int bit_length) {
 
 // Recursively computes the value of the string as an integer, then checks to
 // see if the value is in the dictionary. If it is not, it adds it.
-std::string decompress(std::vector<std::string> &v) {
-  assert(!v.empty());
+std::string decompress(std::vector<int> &v) {
+//  assert(!v.empty());
   std::map<int, std::string> dictionary = decompression_dictionary();
 
   std::string s = "";
-  for(auto it = v.begin(); it != v.end(); ++it) {
-    //std::string w(1, v.begin()); // std::string value(*it, 12); need to move 12 positions over
-    std::string w = v.front();
-    std::cout << w << " ";
+  for(auto i = 0; i < v.size(); ++i) {
+    // = (dictionary.find(value) != dictionary.end()) ? dictionary[value] : w + w.at(0);
+    int value = v.at(i);
+    std::string str;
+    // If the value is in the dictionary
+    if(dictionary.find(value) != dictionary.end()) {
+      str = dictionary[value]; // set str to the string pair of value
+      std::cout << str <<" found ";
 
-    //int b = binary_string_to_int(str);
+    }
+    // The value is not in the dictionary
+    else {
+      //std::cout << w << " w\n" << w.at(0) << " w.at(0)\n";
+      str = std::to_string(value); // entry = w + w.at(0) // set str to
+      std::cout << str << " not in dictionary ";
+    }
+    s.append(str);
+    std::cout << s << " this is s ";
+
+    if (dictionary.size() < 4096)
+      dictionary[dictionary.size() + 1] = s + str; // w + entry[0]
+
+    s = str;
+    std::cout << s << " this is w\n";
 
   }
   /*
@@ -203,7 +238,7 @@ int binary_string_to_int(std::string s) {
     while (s.size() > 0) {
       code = code << 1;
       if (s.at(0) == '1')
-        code++;
+        ++code;
       s = s.substr(1);
     }
   }
@@ -259,7 +294,9 @@ int main(int argc, char *argv[]) {
       // filename2 should be identical to filename
       // separate the input into strings of length 12,
       // put these strings into a vector
-      std::vector<std::string> v = separate(in, 12);
+      std::vector<int> v = separate(in, 12);
+
+      // Make a new vector of integers where each value is the separated binary string as an integer
       std::string d = decompress(v);
       filename.append("2");
       std::ofstream out(filename.c_str(), std::ios::binary);
