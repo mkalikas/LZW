@@ -10,94 +10,6 @@
 #include <vector>
 #include "lzw435.hpp"
 
-// Builds a dictionary of extended ASCII characters
-// The pairs are (string, int) pairs
-// These fill up the keys from 0 to 255
-std::map<std::string, int> compression_dictionary() {
-
-  std::map<std::string, int> c_dictionary;
-  // Build the dictionary.
-  auto dictionary_size = 256;
-  for (auto x = 0; x < dictionary_size; ++x)
-    c_dictionary[std::string(1, x)] = x;
-
-  return c_dictionary;
-}
-
-// Builds a dictionary of extended ASCII characters
-// The pairs are (int, string) pairs
-// These fill up the keys from 0 to 255
-std::map<int, std::string> decompression_dictionary() {
-  std::map<int, std::string> d_dictionary;
-  // Build the dictionary.
-  auto dictionary_size = 256;
-  for (auto x = 0; x < dictionary_size; ++x)
-    d_dictionary[x] = std::string(1, x);
-
-  return d_dictionary;
-}
-
-/*
-// Take a string and create a vector of integers to represent
-// tokens in the string
-template <typename Iter>
-Iter compress(const std::string &uncompressed, Iter ret) {
-
-  std::map<std::string, int> dictionary =compression_dictionary(); // initialize
-dictionary std::string w; for(auto i = uncompressed.at(0); i !=
-uncompressed.size(); ++i) {
-
-    char c = *i;
-    std::string wc = w + c;
-    if (dictionary.find(wc) != dictionary.end())
-      w = wc;
-    else {
-      *ret++ = dictionary[w];
-      // Add wc to the dictionary. Assuming the size is 4096!!!
-      if (dictionary.size() < 4096)
-        dictionary[wc] = dictionary.size() + 1;
-      w = std::string(1, c);
-    }
-  }
-
-  // Output the code for w.
-  if (!w.empty())
-    *ret++ = dictionary[w];
-
-  return ret;
-}
-*/
-
-// Take a string and create a vector of integers to represent
-// tokens in the string
-std::vector<int> compress(const std::string &uncompressed) {
-
-  std::map<std::string, int> dictionary =compression_dictionary(); // initialize dictionary
-
-  std::vector<int> v;
-  std::string w;
-
-  for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
-    std::string wc = w + *it;
-    if (dictionary.count(wc))
-      w = wc;
-    else { // wc is not in the dictionary, add it
-      v.push_back(dictionary[w]);
-
-      if (dictionary.size() == 4096)
-        return v;
-
-      // Add wc to the dictionary
-      dictionary[wc] = dictionary.size() + 1;
-      w = std::string(1, *it);
-    }
-  }
-//  if (!w.empty())
-  v.push_back(dictionary[w]);
-
-  return v;
-}
-
 /*
   Takes a string and bit_length
   Creates strings the length of bit_length, then calls 
@@ -250,23 +162,7 @@ int main(int argc, char *argv[]) {
   try {
 
     switch (*argv[1]) {
-    // Compress input file
-    // If program was run passing c and filename to compress
-    case 'c': {
-      // Pass input file contents string to get compressed
-      // and pass empty vector t
-      std::vector<int> v = compress(in);
 
-      std::string output = int_to_binary_string(v, "");
-
-      // Add .lzw extension to input file name
-      filename.append(".lzw");
-
-      std::ofstream out(filename.c_str(), std::ios::binary);
-      out << output;
-      out.close();
-      break;
-    }
     // Expand input file
     case 'e': {
       // filename2 should be identical to filename

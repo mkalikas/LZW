@@ -1,4 +1,5 @@
 #include "lzw435.hpp"
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -14,7 +15,7 @@ int main(int argc, char *argv[]) {
   std::string filename = argv[2];
   std::ifstream infile(filename.c_str(), std::ios::binary);
 
-  // Throw an error if the file cannot be opened
+  // Throw an exception if the file cannot be opened
   if (!infile.is_open()) {
     std::cerr << "ERROR: file cannot be opened. Check that the file exists.\n";
     return 2;
@@ -37,6 +38,13 @@ int main(int argc, char *argv[]) {
       std::vector<int> v = compress(in);
       
       std::string output = int_to_binary_string(v, "");
+
+      // Make the output string divisible by 8
+      auto bit_length = output.length() % 8;
+      output.append(bit_length, '0');
+      assert(output.length() == (output.length() % 8 + output.length()));
+      output = convert_to_bytes(output);
+
       
 
       // Add .lzw extension to input file name
@@ -64,7 +72,7 @@ int main(int argc, char *argv[]) {
     }
     }
   } catch (char const *err) {
-    std::cout << "The library threw an exception:\n" << err << "\n";
+    std::cerr << "The library threw an exception:\n" << err << "\n";
   }
 
   return 0;
