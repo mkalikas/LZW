@@ -68,7 +68,7 @@ std::vector<int> compress(const std::string &uncompressed) {
 /*
   Takes a string and reads 8 characters at a time.
   Converts the segments read into a character.
-  Appends the converted character to the string.
+  Replaces each segment in the string with a character.
   Returns the string once the input string has been
   read to the end.
 */

@@ -45,8 +45,6 @@ int main(int argc, char *argv[]) {
       assert(output.length() == (output.length() % 8 + output.length()));
       output = convert_to_bytes(output);
 
-      
-
       // Add .lzw extension to input file name
       filename.append(".lzw");
 
