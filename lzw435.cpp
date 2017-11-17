@@ -35,38 +35,42 @@ std::map<int, std::string> decompression_dictionary() {
 // tokens in the string
 std::vector<int> compress(const std::string &uncompressed) {
 
-  std::map<std::string, int> dictionary =compression_dictionary(); // initialize dictionary
-
+  std::map<std::string, int> dictionary = compression_dictionary(); // initialize dictionary
+  
+  std::string lookahead;
   std::vector<int> v;
-  std::string w;
-
   for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
-    std::string wc = w + *it;
-    if (dictionary.count(wc))
-      w = wc;
-    else { // wc is not in the dictionary, add it
-      v.push_back(dictionary[w]);
+    char current = *it;
+    std::string consume = lookahead + current;
 
+    // The entry is already in the dictionary
+    if (dictionary.count(consume)) {
+      lookahead = consume;
+    }
+    else { // lookahead is not in the dictionary, add it
       if (dictionary.size() == 4096)
         return v;
+      
+      v.push_back(dictionary[lookahead]);
 
-      // Add wc to the dictionary
-      dictionary[wc] = dictionary.size() + 1;
-      w = std::string(1, *it);
+      // Add consume to the dictionary
+      dictionary[consume] = dictionary.size() - 1;
+      lookahead = std::string(1, current);
+
     }
   }
-
-  v.push_back(dictionary[w]);
+  if (!lookahead.empty())
+    v.push_back(dictionary[lookahead]);
 
   return v;
 }
 
 /*
   Takes a string and bit_length
-  Creates strings the length of bit_length, then calls 
+  Creates strings the length of bit_length, then calls
   binary_string_to_int to convert the string to an integer.
-  This integer is then added to a vector. 
-  Returns the vector after the entire input string has been 
+  This integer is then added to a vector.
+  Returns the vector after the entire input string has been
   separated into substrings and the integer result of each string
   has been computed.
 */
@@ -77,7 +81,6 @@ std::vector<int> separate(std::string &s, int bit_length) {
   for (int i = 0; i < s.size(); i += bit_length) {
     std::string str = s.substr(i, bit_length);
     assert(str.length() == bit_length);
-  //\DELETE: set integer value to string //val = binary_string_to_int(str);
     v.push_back(binary_string_to_int(str));
   }
   /*
@@ -86,17 +89,17 @@ std::vector<int> separate(std::string &s, int bit_length) {
     std::cout << v.at(i) << " ";
   std::cout << "\n";
   */
-  
+
   return v;
 }
 
 /*
-  Takes a vector of integers and returns a string 
+  Takes a vector of integers and returns a string
   representing each integer as a string in the map.
   It builds the dictionary and then recursively computes the
   value of the string as an integer, then checks
   if the value is in the dictionary. If it is not, it adds it.
-  The resulting string is expected to be the file contents 
+  The resulting string is expected to be the file contents
   of the original file before compression.
 */
 std::string decompress(std::vector<int> &v) {
@@ -112,7 +115,7 @@ std::string decompress(std::vector<int> &v) {
     // = (dictionary.find(value) != dictionary.end()) ? dictionary[value] : w + w.at(0);
     std::string entry;
 
-    int value = v.at(i); // value at i in vector 
+    int value = v.at(i); // value at i in vector
 
     // If the value is in the dictionary
     if(dictionary.find(value) != dictionary.end()) {
@@ -121,12 +124,12 @@ std::string decompress(std::vector<int> &v) {
 
     }
     // The value is not in the dictionary
-    
-    result.append(entry);
-    
-    std::string s; // an empty string 
 
-    // Add 
+    result.append(entry);
+
+    std::string s; // an empty string
+
+    // Add the entry to the dictionary
     if (dictionary.size() < 4096)
       dictionary[dictionary.size() + 1] = s + entry.at(0); // s + entry[0]
 
@@ -153,7 +156,6 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
     int zeros = 12 - str.size();
     if (zeros < 0) {
       throw "Warning: Overflow. Code is too big to be coded by 12 bits!\n";
-      //str = str.substr(str.size() - 12);
     }
     else {
       for (auto i = 0; i < zeros; ++i) // pad 0s to left of the binary code if needed

@@ -35,8 +35,9 @@ int main(int argc, char *argv[]) {
       // Pass input file contents string to get compressed
       // and pass empty vector t
       std::vector<int> v = compress(in);
-
+      
       std::string output = int_to_binary_string(v, "");
+      
 
       // Add .lzw extension to input file name
       filename.append(".lzw");
