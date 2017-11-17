@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <iterator>
+#include <bitset>
 #include <sys/stat.h>
 
 // Builds a dictionary of extended ASCII characters
@@ -10,7 +11,7 @@
 std::map<std::string, int> compression_dictionary() {
 
   std::map<std::string, int> c_dictionary;
- 
+
   // Build the dictionary.
   auto dictionary_size = 256;
   for (auto x = 0; x < dictionary_size; ++x)
@@ -24,7 +25,7 @@ std::map<std::string, int> compression_dictionary() {
 // These fill up the keys from 0 to 255
 std::map<int, std::string> decompression_dictionary() {
   std::map<int, std::string> d_dictionary;
- 
+
   // Build the dictionary.
   auto dictionary_size = 256;
   for (auto x = 0; x < dictionary_size; ++x)
@@ -49,10 +50,11 @@ std::vector<int> compress(const std::string &uncompressed) {
     if (dictionary.count(consume)) {
       lookahead = consume;
     } else { // lookahead is not in the dictionary, add it
-      if (dictionary.size() == 4096)
-        return v;
-
       v.push_back(dictionary[lookahead]);
+
+      //\ Maybe need to fix!
+      //if (dictionary.size() == 4096)
+        //return v;
 
       // Add consume to the dictionary
       dictionary[consume] = dictionary.size() - 1;
@@ -160,31 +162,18 @@ std::string decompress(std::vector<int> &v) {
 
 std::string int_to_binary_string(std::vector<int> v, std::string s) {
   while (!v.empty()) {
-    std::string str = "";
-    int code = v.front();
+    const int bits = 12;
+    std::bitset<bits> b(v.front());
 
-    while (code > 0) {
-      if (code % 2 == 0)
-        str = "0" + str;
-      else
-        str = "1" + str;
-      code = code >> 1;
-    }
-    int zeros = 12 - str.size();
-    if (zeros < 0) {
-      throw "Warning: Overflow. Code is too big to be coded by 12 bits!\n";
-    } else {
-      for (auto i = 0; i < zeros;
-           ++i) // pad 0s to left of the binary code if needed
-        str = "0" + str;
-    }
-    s.append(str);
+    s.append(b.to_string());
     v.erase(v.begin());
   }
+  assert(v.empty());
 
   if (v.empty())
     return s;
 }
+
 
 int binary_string_to_int(std::string s) {
 

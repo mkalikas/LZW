@@ -17,9 +17,9 @@ into the build directory. If you try to run my program by listing a file
 name it will not work unless the files to be passed are in this
 directory.
 
-You can run the program by executing either:    
+You can run the program by executing either:
     ./lzw435 c filename
-            or     
+            or
     ./lzw435 e filename.lzw
 
 Note that filename depends on whatever file you pass when running the
@@ -57,29 +57,31 @@ If you want to keep the files to be passed when executing the program in
 the same directory as the source files, that is, outside of the build
 directory, then you must include ../ before the filename. So a file named text.txt that is in the same directory as the source code can be passed to the program by running ./lzw435 c ../text.txt to compress.
 
-If you choose this method to run the program, the output file will be written to the directory where the input file is located. 
+If you choose this method to run the program, the output file will be written to the directory where the input file is located.
 
 If this is the case, the file passed when executing the program by
 passing e will not include a ../ before the filename and will instead be executed as described above for running the program by passing e and
 filename.lzw.
 
 I included a .hpp file that includes the prototypes for all of
-my functions that are used to compute the compression and 
+my functions that are used to compute the compression and
 decompression for part one.
 
-I included two functions to create the dictionary in the file for part one and part two. When a file is being compressed, the dictionary function creates a map of string, integer pairs. When a file is being expanded, the dictionary function creates a map of integer, string pairs. 
+I included two functions to create the dictionary in the file for part one and part two. When a file is being compressed, the dictionary function creates a map of string, integer pairs. When a file is being expanded, the dictionary function creates a map of integer, string pairs.
 
-For compression, I included a function called convert_to_bytes that converts the binary string to bytes that represent their corresponding character. This function takes a string and reads 8 characters at a time. It converts the segments read into a character by converting the binary number into an integer and then converting 
+I wrote a compress function that takes a string. This string represents the entire contents of the uncompressed file.
+
+For compression, I included a function called convert_to_bytes that converts the binary string to bytes that represent their corresponding character. This function takes a string and reads 8 characters at a time. It converts the segments read into a character by converting the binary number into an integer and then converting
 that into a character. The substring segment then replaces the original input string byte by byte. After following
-this process until the end of the input string is reached, the resulting string is a compressed string of bytes. 
+this process until the end of the input string is reached, the resulting string is a compressed string of bytes.
 
-For decompression, I included a function that separates the string input into groups of 12. 
+For decompression, I included a function that separates the string input into groups of 12.
 The separated strings are then passed to the binary_string_to_int
 function. Their result is returned as an integer and then put into a vector of integers.
-This vector is then used for decompression. The decompression 
-function takes a vector of integers and returns a string 
+This vector is then used for decompression. The decompression
+function takes a vector of integers and returns a string
 representing each integer as a string in the map by recursively
 checking to see if the integer value is found in the dictionary.
 If it is not, it is added and the corresponding string is matched as the integer pair in the map.
-The resulting string is expected to be the file contents 
+The resulting string is expected to be the file contents
 of the original file before compression.
