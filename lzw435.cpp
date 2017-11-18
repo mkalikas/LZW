@@ -1,8 +1,8 @@
 #include "lzw435.hpp"
+#include <bitset>
 #include <cassert>
 #include <iostream>
 #include <iterator>
-#include <bitset>
 #include <sys/stat.h>
 
 // Builds a dictionary of extended ASCII characters
@@ -38,7 +38,8 @@ std::map<int, std::string> decompression_dictionary() {
 // tokens in the string
 std::vector<int> compress(const std::string &uncompressed) {
 
-  std::map<std::string, int> dictionary = compression_dictionary(); // initialize dictionary
+  std::map<std::string, int> dictionary =
+      compression_dictionary(); // initialize dictionary
 
   std::string lookahead;
   std::vector<int> v;
@@ -53,8 +54,8 @@ std::vector<int> compress(const std::string &uncompressed) {
       v.push_back(dictionary[lookahead]);
 
       //\ Maybe need to fix!
-      //if (dictionary.size() == 4096)
-        //return v;
+      if (dictionary.size() == 4096)
+        return v;
 
       // Add consume to the dictionary
       dictionary[consume] = dictionary.size() - 1;
@@ -81,7 +82,6 @@ std::string convert_to_bytes(std::string &s) {
     std::string segments = s.substr(i, byte_size);
     int new_char = binary_string_to_int(segments);
     s.replace(i, byte_size, 1, static_cast<char>(new_char));
-
   }
   return s;
 }
@@ -161,6 +161,33 @@ std::string decompress(std::vector<int> &v) {
 }
 
 std::string int_to_binary_string(std::vector<int> v, std::string s) {
+
+  while (!v.empty()) {
+    std::string str = "";
+    int code = v.front();
+
+    while (code > 0) {
+      if (code % 2 == 0)
+        str = "0" + str;
+      else
+        str = "1" + str;
+      code = code >> 1;
+    }
+    int zeros = 12 - str.size();
+    if (zeros < 0) {
+      throw "Warning: Overflow. Code is too big to be coded by 12 bits!\n";
+    } else {
+      for (auto i = 0; i < zeros;
+           ++i) // pad 0s to left of the binary code if needed
+        str = "0" + str;
+    }
+    s.append(str);
+    v.erase(v.begin());
+  }
+
+  if (v.empty())
+    return s;
+  /* With bitset
   while (!v.empty()) {
     const int bits = 12;
     std::bitset<bits> b(v.front());
@@ -172,8 +199,8 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
 
   if (v.empty())
     return s;
+    */
 }
-
 
 int binary_string_to_int(std::string s) {
 

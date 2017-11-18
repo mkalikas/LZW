@@ -71,20 +71,21 @@ uncompressed.size(); ++i) {
 // tokens in the string
 std::vector<int> compress(const std::string &uncompressed) {
 
-  std::map<std::string, int> dictionary =compression_dictionary(); // initialize dictionary
+  std::map<std::string, int> dictionary =
+      compression_dictionary(); // initialize dictionary
 
   std::vector<int> v;
 
   std::string w;
   for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
 
-   // char c = *it;
+    // char c = *it;
     std::string wc = w + *it;
     if (dictionary.count(wc))
       w = wc;
     else { // wc is not in the dictionary, add it
       v.push_back(dictionary[w]);
-      
+
       // Add wc to the dictionary
       if (dictionary.size() < 4096)
         dictionary[wc] = dictionary.size() + 1;
@@ -233,8 +234,8 @@ std::tuple<int, int> get_code_and_length(std::vector<int> v) {
 
 std::string int_to_binary_string(int value, int bits) {
   std::string s;
-  //std::bitset<bits> b(value);
-  //s.append(std::to_string(b));
+  // std::bitset<bits> b(value);
+  // s.append(std::to_string(b));
 
   auto code = value;
   while (value > 0) {
@@ -246,10 +247,12 @@ std::string int_to_binary_string(int value, int bits) {
   }
   auto zeros = bits - s.size();
   if (zeros < 0) {
-    std::cout << "\nWarning: Overflow. code " << code << " is too big to be coded by " << bits << " bits!\n";
+    std::cout << "\nWarning: Overflow. code " << code
+              << " is too big to be coded by " << bits << " bits!\n";
     s.substr(s.size() - bits);
   } else {
-    for (auto i = 0; i < zeros; i++) // pad 0s to left of the binary code if needed
+    for (auto i = 0; i < zeros;
+         i++) // pad 0s to left of the binary code if needed
       s = "0" + s;
   }
   return s;
@@ -304,7 +307,9 @@ int main(int argc, char *argv[]) {
       // and pass empty vector t
       std::vector<int> v = compress(in);
 
-      std::string output = int_to_binary_string(std::get<1>(get_code_and_length(v)), std::get<2>(get_code_and_length(v)));
+      std::string output =
+          int_to_binary_string(std::get<1>(get_code_and_length(v)),
+                               std::get<2>(get_code_and_length(v)));
 
       // Add .lzw extension to input file name
       filename.append(".lzw");
