@@ -5,7 +5,7 @@
 #include <iterator>
 
 int main(int argc, char *argv[]) {
-  // Output an error if 3 parameters were not passed
+  // Throw an error if 3 parameters were not passed
   if (argc < 2) {
     std::cerr << "ERROR: no input files given\n";
     return 1;
@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
   std::string filename = argv[2];
   std::ifstream infile(filename.c_str(), std::ios::binary);
 
-  // Output an error if the file cannot be opened
+  // Throw an error if the file cannot be opened
   if (!infile.is_open()) {
     std::cerr << "ERROR: file cannot be opened. Check that the file exists.\n";
     return 2;
@@ -29,8 +29,8 @@ int main(int argc, char *argv[]) {
   try {
 
     switch (*argv[1]) {
-
     // Compress input file
+    // If program was run passing c and filename to compress
     case 'c': {
       // Pass input file contents string to get vector of integers
       // representing integer value that corresponds to string in dictionary
@@ -66,13 +66,13 @@ int main(int argc, char *argv[]) {
       filename.append("2"); // Save expanded file as filename2
 
       std::ofstream out(filename.c_str(), std::ios::binary);
-      out << d; // Output contents to a new file
+      out << d;
       out.close();
       break;
     }
     }
   } catch (char const *err) {
-    std::cerr << "The library threw an exception:\n" << err << "\n";
+    std::cout << "The library threw an exception:\n" << err << "\n";
   }
 
   return 0;
