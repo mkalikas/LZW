@@ -1,4 +1,5 @@
 #include "lzw435.hpp"
+#include <bitset> 
 #include <cassert>
 #include <iostream>
 #include <iterator>
@@ -68,7 +69,7 @@ std::vector<int> compress(const std::string &uncompressed) {
 /*
   Takes a string and reads 8 characters at a time.
   Converts the segments read into a character.
-  Appends the converted character to the string.
+  Replaces each segment in the string with a character.
   Returns the string once the input string has been
   read to the end.
 */
@@ -159,9 +160,25 @@ std::string decompress(std::vector<int> &v) {
 }
 
 std::string int_to_binary_string(std::vector<int> v, std::string s) {
+
   while (!v.empty()) {
-    std::string str = "";
+    const int bits = 12;
+    std::bitset<bits> b(v.front());
+
+    s.append(b.to_string());
+    v.erase(v.begin());
+  }
+
+  assert(v.empty());
+
+  if (v.empty())
+    return s;
+
+  /* Using original code and vector 
+  while (!v.empty()) {
     int code = v.front();
+    s.append();
+    v.erase(v.begin());
 
     while (code > 0) {
       if (code % 2 == 0)
@@ -184,6 +201,7 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
 
   if (v.empty())
     return s;
+  */
 }
 
 int binary_string_to_int(std::string s) {
