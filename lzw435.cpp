@@ -11,7 +11,7 @@
 std::map<std::string, int> compression_dictionary() {
 
   std::map<std::string, int> c_dictionary;
- 
+
   // Build the dictionary.
   auto dictionary_size = 256;
   for (auto x = 0; x < dictionary_size; ++x)
@@ -25,7 +25,7 @@ std::map<std::string, int> compression_dictionary() {
 // These fill up the keys from 0 to 255
 std::map<int, std::string> decompression_dictionary() {
   std::map<int, std::string> d_dictionary;
- 
+
   // Build the dictionary.
   auto dictionary_size = 256;
   for (auto x = 0; x < dictionary_size; ++x)
@@ -38,7 +38,8 @@ std::map<int, std::string> decompression_dictionary() {
 // tokens in the string
 std::vector<int> compress(const std::string &uncompressed) {
 
-  std::map<std::string, int> dictionary = compression_dictionary(); // initialize dictionary
+  std::map<std::string, int> dictionary =
+      compression_dictionary(); // initialize dictionary
 
   std::string lookahead;
   std::vector<int> v;
@@ -50,10 +51,11 @@ std::vector<int> compress(const std::string &uncompressed) {
     if (dictionary.count(consume)) {
       lookahead = consume;
     } else { // lookahead is not in the dictionary, add it
+      v.push_back(dictionary[lookahead]);
+
+      //\ Maybe need to fix!
       if (dictionary.size() == 4096)
         return v;
-
-      v.push_back(dictionary[lookahead]);
 
       // Add consume to the dictionary
       dictionary[consume] = dictionary.size() - 1;
@@ -80,7 +82,6 @@ std::string convert_to_bytes(std::string &s) {
     std::string segments = s.substr(i, byte_size);
     int new_char = binary_string_to_int(segments);
     s.replace(i, byte_size, 1, static_cast<char>(new_char));
-
   }
   return s;
 }
@@ -201,7 +202,9 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
 
   if (v.empty())
     return s;
+
   */
+
 }
 
 int binary_string_to_int(std::string s) {

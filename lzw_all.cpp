@@ -8,16 +8,102 @@
 #include <sys/stat.h>
 #include <tuple>
 #include <vector>
-#include "lzw435.hpp"
+
+int binary_string_to_int(std::string s);
+
+// Builds a dictionary of extended ASCII characters
+// The pairs are (string, int) pairs
+// These fill up the keys from 0 to 255
+std::map<std::string, int> compression_dictionary() {
+
+  std::map<std::string, int> c_dictionary;
+  // Build the dictionary.
+  auto dictionary_size = 256;
+  for (auto x = 0; x < dictionary_size; ++x)
+    c_dictionary[std::string(1, x)] = x;
+
+  return c_dictionary;
+}
+
+// Builds a dictionary of extended ASCII characters
+// The pairs are (int, string) pairs
+// These fill up the keys from 0 to 255
+std::map<int, std::string> decompression_dictionary() {
+  std::map<int, std::string> d_dictionary;
+  // Build the dictionary.
+  auto dictionary_size = 256;
+  for (auto x = 0; x < dictionary_size; ++x)
+    d_dictionary[x] = std::string(1, x);
+
+  return d_dictionary;
+}
+
+/*
+// Take a string and create a vector of integers to represent
+// tokens in the string
+template <typename Iter>
+Iter compress(const std::string &uncompressed, Iter ret) {
+
+  std::map<std::string, int> dictionary =compression_dictionary(); // initialize
+dictionary std::string w; for(auto i = uncompressed.at(0); i !=
+uncompressed.size(); ++i) {
+
+    char c = *i;
+    std::string wc = w + c;
+    if (dictionary.find(wc) != dictionary.end())
+      w = wc;
+    else {
+      *ret++ = dictionary[w];
+      // Add wc to the dictionary. Assuming the size is 4096!!!
+      if (dictionary.size() < 4096)
+        dictionary[wc] = dictionary.size() + 1;
+      w = std::string(1, c);
+    }
+  }
+
+  // Output the code for w.
+  if (!w.empty())
+    *ret++ = dictionary[w];
+
+  return ret;
+}
+*/
+
+// Take a string and create a vector of integers to represent
+// tokens in the string
+std::vector<int> compress(const std::string &uncompressed) {
+
+  std::map<std::string, int> dictionary =compression_dictionary(); // initialize dictionary
+
+  std::vector<int> v;
+  std::string w;
+
+  for (auto it = uncompressed.begin(); it != uncompressed.end(); ++it) {
+    std::string wc = w + *it;
+    if (dictionary.count(wc))
+      w = wc;
+    else { // wc is not in the dictionary, add it
+      v.push_back(dictionary[w]);
+
+      if (dictionary.size() == 4096)
+        return v;
+
+      // Add wc to the dictionary
+      dictionary[wc] = dictionary.size() + 1;
+      w = std::string(1, *it);
+    }
+  }
+//  if (!w.empty())
+  v.push_back(dictionary[w]);
+
+  return v;
+}
 
 /*
   Takes a string and bit_length
-  Creates strings the length of bit_length, then calls 
-  binary_string_to_int to convert the string to an integer.
-  This integer is then added to a vector. 
-  Returns the vector after the entire input string has been 
-  separated into substrings and the integer result of each string
-  has been computed.
+  Creates strings the length of bit_length and adds
+  them to a vector. Returns the vector after the entire
+  input string has been separated into substrings.
 */
 std::vector<int> separate(std::string &s, int bit_length) {
   std::vector<int> v;
@@ -29,12 +115,21 @@ std::vector<int> separate(std::string &s, int bit_length) {
   //\DELETE: set integer value to string //val = binary_string_to_int(str);
     v.push_back(binary_string_to_int(str));
   }
-  //\DELETE: Output each element in vector
   for(int i = 0; i < v.size(); ++i)
     std::cout << v.at(i) << " ";
   std::cout << "\n";
-  
   return v;
+}
+
+std::vector<int> decompress_to_int(std::vector<std::string> v) {
+  std::vector<int> v2;
+  for(int i = 0; i < v.size(); ++i) {
+    int value = binary_string_to_int(v.at(i));
+    v2.push_back(value);
+    std::cout << v2.at(i) << " ";
+  }
+  std::cout << "\n";
+  return v2;
 }
 
 // Decompress a list of output ks to a string.
@@ -48,46 +143,61 @@ std::string decompress(std::vector<int> &v) {
 //  assert(!v.empty());
   std::map<int, std::string> dictionary = decompression_dictionary();
 
-  int next = v.at(1); // get the next value
-
-  std::string s = dictionary[next]; // init string to first val in vector 
-  std::cout << s << " next val";
-  std::string result = s;
-  std::string str;
+  std::string s = "";
   for(auto i = 0; i < v.size(); ++i) {
     // = (dictionary.find(value) != dictionary.end()) ? dictionary[value] : w + w.at(0);
-    
-    int value = v.at(i); // value at i in vector 
-
+    int value = v.at(i);
+    std::string str;
     // If the value is in the dictionary
     if(dictionary.find(value) != dictionary.end()) {
       str = dictionary[value]; // set str to the string pair of value
-      //std::cout << str << " found ";
-
+      std::cout << str <<" found ";
+    }
+    else if(value == dictionary.size()) {
+      str =
     }
     // The value is not in the dictionary
-    // If the value is the value of the dictionary size
-    else if(value == dictionary.size()) {
-      //std::cout << w << " w\n" << w.at(0) << " w.at(0)\n";
-     // str = std::to_string(value); // entry = w + w.at(0) 
-      str = s + s.at(0);
-      //std::cout << str << " not in dictionary ";
-    }
     else {
-      throw "Bad compressed.";
+      //std::cout << w << " w\n" << w.at(0) << " w.at(0)\n";
+      str = std::to_string(value); // entry = w + w.at(0) // set str to
+      std::cout << str << " not in dictionary ";
     }
-
-    result.append(str);
-    //std::cout << s << " this is s ";
+    s.append(str);
+    std::cout << s << " this is s ";
 
     if (dictionary.size() < 4096)
-      dictionary[dictionary.size() + 1] = s + str.at(0); // w + entry[0]
+      dictionary[dictionary.size() + 1] = s + str; // w + entry[0]
 
     s = str;
-    //std::cout << s << " this is w\n";
+    std::cout << s << " this is w\n";
 
   }
-  return result;
+  /*
+  std::string w(1, v.front()); // std::string value(*it, 12); need to move 12 positions over
+
+  std::string result = w; // what is returned
+  std::string entry;
+  for (; std::begin != std::end; std::next) {
+    int k = *it_begin; // int b = binary_string_to_int(value);
+    // ret.append(std::to_string(b));
+    // std::map<int, std::string>::iterator i = dictionary.find(b);
+
+    if (dictionary.count(k))
+      entry = dictionary[k];
+    else if (k == dictionary.size())
+      entry = w.substr(w.begin(), 1); // entry = w + w.at(0)
+    else
+      throw "Bad compressed k";
+
+    result.append(entry); // result += entry
+
+    if (dictionary.size() < 4096)
+      dictionary[dictionary.size() + 1] = w + entry.at(0); // w + entry[0]
+
+    w = entry;
+  }
+  */
+  return s;
 
 }
 
@@ -95,7 +205,7 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
   while(!v.empty()) {
     std::string str = "";
     int code = v.front();
-    std::cout << code << "\n";
+
     while (code > 0) {
       if (code % 2 == 0)
         str = "0" + str;
@@ -106,7 +216,6 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
     int zeros = 12 - str.size();
     if (zeros < 0) {
       throw "Warning: Overflow. Code is too big to be coded by 12 bits!\n";
-      //str = str.substr(str.size() - 12);
     }
     else {
       for (auto i = 0; i < zeros; ++i) // pad 0s to left of the binary code if needed
@@ -162,17 +271,35 @@ int main(int argc, char *argv[]) {
   try {
 
     switch (*argv[1]) {
+    // Compress input file
+    // If program was run passing c and filename to compress
+    case 'c': {
+      // Pass input file contents string to get compressed
+      // and pass empty vector t
+      std::vector<int> v = compress(in);
 
+      std::string output = int_to_binary_string(v, "");
+
+      // Add .lzw extension to input file name
+      filename.append(".lzw");
+
+      std::ofstream out(filename.c_str(), std::ios::binary);
+      out << output;
+      out.close();
+      break;
+    }
+    // binaryIODemo(v);
     // Expand input file
     case 'e': {
+      // Save expanded file as filename2
       // filename2 should be identical to filename
       // separate the input into strings of length 12,
-      // put these strings into a vector of integers
+      // put these strings into a vector
       std::vector<int> v = separate(in, 12);
 
+      // Make a new vector of integers where each value is the separated binary string as an integer
       std::string d = decompress(v);
-      filename.append("2"); // Save expanded file as filename2
-
+      filename.append("2");
       std::ofstream out(filename.c_str(), std::ios::binary);
       out << d;
       out.close();
