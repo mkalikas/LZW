@@ -53,7 +53,7 @@ std::vector<int> compress(const std::string &uncompressed) {
     } else { // lookahead is not in the dictionary, add it
       v.push_back(dictionary[lookahead]);
 
-      //\ Maybe need to fix!
+      // TODO: modify so that the rest of the file gets put into dictionary 
       if (dictionary.size() == 4096)
         return v;
 
@@ -76,7 +76,7 @@ std::vector<int> compress(const std::string &uncompressed) {
   read to the end.
 */
 std::string convert_to_bytes(std::string &s) {
-  int byte_size = 8;
+  const int byte_size = 8;
 
   for (auto i = 0; i < s.size(); ++i) {
     std::string segments = s.substr(i, byte_size);
@@ -84,6 +84,16 @@ std::string convert_to_bytes(std::string &s) {
     s.replace(i, byte_size, 1, static_cast<char>(new_char));
   }
   return s;
+}
+
+std::string make_string(std::string &s) {
+  std::string str;
+  for(auto i = 0; i < s.length(); ++i) {
+    std::bitset<8> b(static_cast<int>(s.at(i)));
+    str.append(b.to_string());
+  }
+
+  return str;
 }
 
 /*
@@ -97,20 +107,16 @@ std::string convert_to_bytes(std::string &s) {
 */
 std::vector<int> separate(std::string &s, int bit_length) {
   std::vector<int> v;
-  assert(s.length() % bit_length == 0);
+  
+  int zeros = bit_length - 8; 
+  
+  assert((s.length() - zeros) % bit_length == 0);
 
-  for (int i = 0; i < s.size(); i += bit_length) {
+  for (int i = 0; i < s.size() - zeros; i += bit_length) {
     std::string str = s.substr(i, bit_length);
     assert(str.length() == bit_length);
     v.push_back(binary_string_to_int(str));
   }
-  /*
-  //\DELETE: Output each element in vector
-  for(int i = 0; i < v.size(); ++i)
-    std::cout << v.at(i) << " ";
-  std::cout << "\n";
-  */
-
   return v;
 }
 
@@ -124,38 +130,34 @@ std::vector<int> separate(std::string &s, int bit_length) {
   of the original file before compression.
 */
 std::string decompress(std::vector<int> &v) {
-  // assert(!v.empty());
+  assert(!v.empty());
   std::map<int, std::string> dictionary = decompression_dictionary();
 
-  int next;
+  std::string lookahead(1, static_cast<char>(v.at(0)));
   std::string result;
-  // need to have w at next char
 
   // std::string str // same as entry
   for (auto i = 0; i < v.size(); ++i) {
-    // = (dictionary.find(value) != dictionary.end()) ? dictionary[value] : w +
-    // w.at(0);
     std::string entry;
-
     int value = v.at(i); // value at i in vector
 
     // If the value is in the dictionary
     if (dictionary.find(value) != dictionary.end()) {
       entry = dictionary[value]; // set entry to the string pair of value
-      std::cout << entry << " found ";
     }
-    // The value is not in the dictionary
-
+    else if(value = dictionary.size()) {
+      entry = lookahead + lookahead.at(0);
+    }
+    else 
+      throw "Cannot decompress!\n";
+   
     result.append(entry);
-
-    std::string s; // an empty string
 
     // Add the entry to the dictionary
     if (dictionary.size() < 4096)
-      dictionary[dictionary.size() + 1] = s + entry.at(0); // s + entry[0]
+      dictionary[dictionary.size() + 1] = lookahead + entry.at(0); 
 
-    // std::cout << s << " this is w\n";
-    s = entry;
+    lookahead = entry;
   }
   return result;
 }
@@ -174,36 +176,6 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
 
   if (v.empty())
     return s;
-
-  /* Using original code and vector 
-  while (!v.empty()) {
-    int code = v.front();
-    s.append();
-    v.erase(v.begin());
-
-    while (code > 0) {
-      if (code % 2 == 0)
-        str = "0" + str;
-      else
-        str = "1" + str;
-      code = code >> 1;
-    }
-    int zeros = 12 - str.size();
-    if (zeros < 0) {
-      throw "Warning: Overflow. Code is too big to be coded by 12 bits!\n";
-    } else {
-      for (auto i = 0; i < zeros;
-           ++i) // pad 0s to left of the binary code if needed
-        str = "0" + str;
-    }
-    s.append(str);
-    v.erase(v.begin());
-  }
-
-  if (v.empty())
-    return s;
-
-  */
 
 }
 

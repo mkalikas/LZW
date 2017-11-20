@@ -54,7 +54,8 @@ std::string decompress(Iterator begin, Iterator end) {
   for (int i = 0; i < 256; i++)
     dictionary[i] = std::string(1, i);
  
-  std::string w(1, *begin++);
+  std::string w(1, *begin);
+  std::cout << w;
   std::string result = w;
   std::cout << result<<"???:::\n";
   std::string entry;

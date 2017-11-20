@@ -60,8 +60,8 @@ int main(int argc, char *argv[]) {
       // filename2 should be identical to filename
       // separate the input into strings of length 12,
       // put these strings into a vector of integers
+      in = make_string(in);
       std::vector<int> v = separate(in, 12);
-
       std::string d = decompress(v);
       filename.append("2"); // Save expanded file as filename2
 
