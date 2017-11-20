@@ -116,60 +116,41 @@ std::vector<std::string> separate(std::string &s) {
   }
   return v;
 }
-// Decompress a list of output ks to a string.
-// "begin" and "end" are iterators to the beginning and ending of a range
-// when this is called in main, begin and end point to begin and end in
-// compressed string
 
-// Recursively computes the value of the string as an integer, then checks to
-// see if the value is in the dictionary. If it is not, it adds it.
-std::string decompress(std::vector<std::string> &v) {
-
+/*
+  Takes a vector of integers and returns a string
+  representing each integer as a string in the map.
+  It builds the dictionary and then recursively computes the
+  value of the string as an integer, then checks
+  if the value is in the dictionary. If it is not, it adds it.
+  The resulting string is expected to be the file contents
+  of the original file before compression.
+*/
+std::string decompress(std::vector<int> &v) {
+  assert(!v.empty());
   std::map<int, std::string> dictionary = decompression_dictionary();
 
-  while (!v.empty()) {
-  }
-  // initialize a string to read the first 12 characters in the compressed
-  // string
-  /*
-  std::string bcode = "";
-  for (std::vector<int>::iterator it = compressed.begin();
-       it != compressed.end(); ++it) {
-    if (*it < 256)
-      bits = 8;
-    else
-      bits = 9;
-
-    bits = 12;
-    p = int2BinaryString(*it, bits);
-    std::cout << "c=" << *it << " : binary string=" << p
-              << "; back to code=" << binaryString2Int(p) << "\n";
-    bcode += p;
-  }
-  */
-  std::string w(1, *it_begin++); // std::string value(*it, 12); need to move 12
-                                 // postitions over
-
-  std::string result = w; // what is returned
+  std::string lookahead(1, static_cast<char>(v.at(0)));
+  std::string result = lookahead;
   std::string entry;
-  for (; std::begin != std::end; std::next) {
-    int k = *it_begin; // int b = binary_string_to_int(value);
-    // ret.append(std::to_string(b));
-    // std::map<int, std::string>::iterator i = dictionary.find(b);
+  for (auto i = 1; i < v.size(); ++i) {
+    int value = v.at(i); // value at i in vector
 
-    if (dictionary.count(k))
-      entry = dictionary[k];
-    else if (k == dictionary.size())
-      entry = w.substr(w.begin(), 1); // entry = w + w.at(0)
-    else
-      throw "Bad compressed k";
+    // If the value is in the dictionary
+    if (dictionary.count(value)) {
+      entry = dictionary[value]; // set entry to the string pair of value
+    } else if (value == dictionary.size()) {
+      entry = lookahead + lookahead.at(0);
+    } else
+      throw "Cannot decompress!\n";
 
-    result.append(entry); // result += entry
+    result.append(entry);
 
+    // Add the entry to the dictionary
     if (dictionary.size() < 4096)
-      dictionary[dictionary.size() + 1] = w + entry.at(0); // w + entry[0]
+      dictionary[dictionary.size()] = lookahead + entry.at(0);
 
-    w = entry;
+    lookahead = entry;
   }
   return result;
 }
