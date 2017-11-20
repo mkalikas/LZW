@@ -1,5 +1,5 @@
 #include "lzw435.hpp"
-#include <bitset> 
+#include <bitset>
 #include <cassert>
 #include <iostream>
 #include <iterator>
@@ -53,7 +53,7 @@ std::vector<int> compress(const std::string &uncompressed) {
     } else { // lookahead is not in the dictionary, add it
       v.push_back(dictionary[lookahead]);
 
-      // TODO: modify so that the rest of the file gets put into dictionary 
+      // TODO: modify so that the rest of the file gets put into dictionary
       if (dictionary.size() == 4096)
         return v;
 
@@ -88,7 +88,7 @@ std::string convert_to_bytes(std::string &s) {
 
 std::string make_string(std::string &s) {
   std::string str;
-  for(auto i = 0; i < s.length(); ++i) {
+  for (auto i = 0; i < s.length(); ++i) {
     std::bitset<8> b(static_cast<int>(s.at(i)));
     str.append(b.to_string());
   }
@@ -107,9 +107,9 @@ std::string make_string(std::string &s) {
 */
 std::vector<int> separate(std::string &s, int bit_length) {
   std::vector<int> v;
-  
-  int zeros = bit_length - 8; 
-  
+
+  int zeros = bit_length - 8;
+
   assert((s.length() - zeros) % bit_length == 0);
 
   for (int i = 0; i < s.size() - zeros; i += bit_length) {
@@ -134,28 +134,24 @@ std::string decompress(std::vector<int> &v) {
   std::map<int, std::string> dictionary = decompression_dictionary();
 
   std::string lookahead(1, static_cast<char>(v.at(0)));
-  std::string result;
-
-  // std::string str // same as entry
-  for (auto i = 0; i < v.size(); ++i) {
-    std::string entry;
+  std::string result = lookahead;
+  std::string entry;
+  for (auto i = 1; i < v.size(); ++i) {
     int value = v.at(i); // value at i in vector
 
     // If the value is in the dictionary
-    if (dictionary.find(value) != dictionary.end()) {
+    if (dictionary.count(value)) {
       entry = dictionary[value]; // set entry to the string pair of value
-    }
-    else if(value = dictionary.size()) {
+    } else if (value == dictionary.size()) {
       entry = lookahead + lookahead.at(0);
-    }
-    else 
+    } else
       throw "Cannot decompress!\n";
-   
+
     result.append(entry);
 
     // Add the entry to the dictionary
     if (dictionary.size() < 4096)
-      dictionary[dictionary.size() + 1] = lookahead + entry.at(0); 
+      dictionary[dictionary.size()] = lookahead + entry.at(0);
 
     lookahead = entry;
   }
@@ -176,7 +172,6 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
 
   if (v.empty())
     return s;
-
 }
 
 int binary_string_to_int(std::string s) {
