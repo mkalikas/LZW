@@ -3,11 +3,6 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#include <map>
-#include <string>
-#include <sys/stat.h>
-#include <tuple>
-#include <vector>
 
 // Builds a dictionary of extended ASCII characters
 // The pairs are (string, int) pairs
