@@ -1,4 +1,4 @@
-#include <bitset>
+#include "lzw435M.hpp"
 #include <cassert>
 #include <fstream>
 #include <iostream>
@@ -35,37 +35,6 @@ std::map<int, std::string> decompression_dictionary() {
 
   return d_dictionary;
 }
-
-/*
-// Take a string and create a vector of integers to represent
-// tokens in the string
-template <typename Iter>
-Iter compress(const std::string &uncompressed, Iter ret) {
-
-  std::map<std::string, int> dictionary =compression_dictionary(); // initialize
-dictionary std::string w; for(auto i = uncompressed.at(0); i !=
-uncompressed.size(); ++i) {
-
-    char c = *i;
-    std::string wc = w + c;
-    if (dictionary.find(wc) != dictionary.end())
-      w = wc;
-    else {
-      *ret++ = dictionary[w];
-      // Add wc to the dictionary. Assuming the size is 4096!!!
-      if (dictionary.size() < 4096)
-        dictionary[wc] = dictionary.size() + 1;
-      w = std::string(1, c);
-    }
-  }
-
-  // Output the code for w.
-  if (!w.empty())
-    *ret++ = dictionary[w];
-
-  return ret;
-}
-*/
 
 // Take a string and create a vector of integers to represent
 // tokens in the string
@@ -173,37 +142,37 @@ std::tuple<int, int> get_code_and_length(std::vector<int> v) {
       bits = 9;
       v.erase(v.begin());
       return {f, bits};
-    } else if (f < 1'024) {
+    } else if (f < 1024) {
       bits = 10;
       v.erase(v.begin());
 
       return {f, bits};
-    } else if (f < 2'048) {
+    } else if (f < 2048) {
       bits = 11;
       v.erase(v.begin());
 
       return {f, bits};
-    } else if (f < 4'096) {
+    } else if (f < 4096) {
       bits = 12;
       v.erase(v.begin());
 
       return {f, bits};
-    } else if (f < 8'192) {
+    } else if (f < 8192) {
       bits = 13;
       v.erase(v.begin());
 
       return {f, bits};
-    } else if (f < 16'384) {
+    } else if (f < 16384) {
       bits = 14;
       v.erase(v.begin());
 
       return {f, bits};
-    } else if (f < 32'768) {
+    } else if (f < 32768) {
       bits = 15;
       v.erase(v.begin());
 
       return {f, bits};
-    } else if (f < 65'536) {
+    } else if (f < 65536) {
       bits = 16;
       v.erase(v.begin());
 
@@ -254,69 +223,4 @@ auto binary_string_to_int(std::string s) {
     }
   }
   return code;
-}
-
-int main(int argc, char *argv[]) {
-  // Throw an error if 3 parameters were not passed
-  if (argc < 2) {
-    std::cerr << "ERROR: no input files given\n";
-    return 1;
-  }
-
-  std::string filename = argv[2];
-  std::ifstream infile(filename.c_str(), std::ios::binary);
-
-  // Throw an error if the file cannot be opened
-  if (!infile.is_open()) {
-    std::cerr << "ERROR: file cannot be opened. Check that the file exists.\n";
-    return 2;
-  }
-
-  // Create a string of the file contents
-  std::string in{std::istreambuf_iterator<char>(infile),
-                 std::istreambuf_iterator<char>()};
-
-  infile.close();
-
-  try {
-
-    switch (*argv[1]) {
-    // Compress input file
-    // If program was run passing c and filename to compress
-    case 'c': {
-      // Pass input file contents string to get compressed
-      // and pass empty vector t
-      std::vector<int> v = compress(in);
-
-      std::string output =
-          int_to_binary_string(std::get<1>(get_code_and_length(v)),
-                               std::get<2>(get_code_and_length(v)));
-
-      // Add .lzw extension to input file name
-      filename.append(".lzw");
-
-      std::ofstream out(filename.c_str(), std::ios::binary);
-      out << output;
-      out.close();
-      break;
-    }
-    // binaryIODemo(v);
-    // Expand input file
-    case 'e': {
-      // Save expanded file as filename2
-      // filename2 should be identical to filename
-      std::vector<std::string> v = separate(in);
-      std::string d = decompress(v);
-      filename.append("2");
-      std::ofstream out(filename.c_str(), std::ios::binary);
-      out << d;
-      out.close();
-      break;
-    }
-    }
-  } catch (char const *err) {
-    std::cout << "The library threw an exception:\n" << err << "\n";
-  }
-
-  return 0;
 }
