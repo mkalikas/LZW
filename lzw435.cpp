@@ -6,8 +6,6 @@
 #include <sys/stat.h>
 
 // Builds a dictionary of extended ASCII characters
-// The pairs are (string, int) pairs
-// These fill up the keys from 0 to 255
 std::map<std::string, int> compression_dictionary() {
 
   std::map<std::string, int> c_dictionary;
@@ -21,8 +19,6 @@ std::map<std::string, int> compression_dictionary() {
 }
 
 // Builds a dictionary of extended ASCII characters
-// The pairs are (int, string) pairs
-// These fill up the keys from 0 to 255
 std::map<int, std::string> decompression_dictionary() {
   std::map<int, std::string> d_dictionary;
 
@@ -69,11 +65,9 @@ std::vector<int> compress(const std::string &uncompressed) {
 }
 
 /*
-  Takes a string and reads 8 characters at a time.
-  Converts the segments read into a character.
-  Replaces each segment in the string with a character.
-  Returns the string once the input string has been
-  read to the end.
+  Reads a bit string the length of one byte.
+  Replaces the 8 bit length string with the
+  single character corresponding to the integer value
 */
 std::string convert_to_bytes(std::string &s) {
   const int byte_size = 8;
@@ -96,15 +90,8 @@ std::string make_string(std::string &s) {
   return str;
 }
 
-/*
-  Takes a string and bit_length
-  Creates strings the length of bit_length, then calls
-  binary_string_to_int to convert the string to an integer.
-  This integer is then added to a vector.
-  Returns the vector after the entire input string has been
-  separated into substrings and the integer result of each string
-  has been computed.
-*/
+// Creates strings the length of bit_length, then calls
+// binary_string_to_int to convert the string to an integer.
 std::vector<int> separate(std::string &s, int bit_length) {
   std::vector<int> v;
 
@@ -120,15 +107,7 @@ std::vector<int> separate(std::string &s, int bit_length) {
   return v;
 }
 
-/*
-  Takes a vector of integers and returns a string
-  representing each integer as a string in the map.
-  It builds the dictionary and then recursively computes the
-  value of the string as an integer, then checks
-  if the value is in the dictionary. If it is not, it adds it.
-  The resulting string is expected to be the file contents
-  of the original file before compression.
-*/
+// Adds values to the dictionary to get the original decompressed string
 std::string decompress(std::vector<int> &v) {
   assert(!v.empty());
   std::map<int, std::string> dictionary = decompression_dictionary();
@@ -167,11 +146,7 @@ std::string int_to_binary_string(std::vector<int> v, std::string s) {
     s.append(b.to_string());
     v.erase(v.begin());
   }
-
-  assert(v.empty());
-
-  if (v.empty())
-    return s;
+  assert(v.empty()) if (v.empty()) return s;
 }
 
 int binary_string_to_int(std::string s) {

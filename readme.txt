@@ -4,7 +4,6 @@ To compile my program,
             mkalikas_1.This folder should contain
                 lzw435.cpp and CMakeLists.txt.Once inside of this directory,
     run the following sequence of commands
-        .
 
     The sequence of commands are :
 
@@ -85,11 +84,11 @@ this process until the end of the input string is reached, the resulting string 
 that takes a vector of integers and converts the values in the vector to their
 corresponding binary representation by using the bitset header file from the C++ standard library.
 
-For compression, I included a function called convert_to_bytes that converts the binary string to bytes that represent their corresponding character. This function takes a string and reads 8 characters at a time. It converts the segments read into a character by converting the binary number into an integer and then converting 
+For compression, I included a function called convert_to_bytes that converts the binary string to bytes that represent their corresponding character. This function takes a string and reads 8 characters at a time. It converts the segments read into a character by converting the binary number into an integer and then converting
 that into a character. The substring segment then replaces the original input string byte by byte. After following
-this process until the end of the input string is reached, the resulting string is a compressed string of bytes. 
+this process until the end of the input string is reached, the resulting string is a compressed string of bytes.
 
-For decompression, I included a function that separates the string input into groups of 12. 
+For decompression, I included a function that separates the string input into groups of 12.
 The separated strings are then passed to the binary_string_to_int
 function. Their result is returned as an integer and then put into a vector of integers.
 This vector is then used for decompression. The decompression

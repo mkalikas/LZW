@@ -32,12 +32,9 @@ int main(int argc, char *argv[]) {
     // Compress input file
     // If program was run passing c and filename to compress
     case 'c': {
-      // Pass input file contents string to get vector of integers
-      // representing integer value that corresponds to string in dictionary
+      // Pass input file string to get integer pair to string in dictionary
       std::vector<int> v = compress(in);
       // Convert all integers to corresponding binary values
-      // each appended to a string representing the file as a
-      // string of binary numbers
       std::string output = int_to_binary_string(v, "");
 
       // Make the output string divisible by 8
@@ -57,9 +54,6 @@ int main(int argc, char *argv[]) {
     }
     // Expand input file
     case 'e': {
-      // filename2 should be identical to filename
-      // separate the input into strings of length 12,
-      // put these strings into a vector of integers
       in = make_string(in);
       std::vector<int> v = separate(in, 12);
       std::string d = decompress(v);
